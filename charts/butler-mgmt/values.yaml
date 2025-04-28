@@ -47,7 +47,7 @@ metallb:
     enabled: true
     name: management-cluster-pool
     addresses:
-      - 10.127.14.24-10.127.14.26
+      - ""
   l2Advertisement:
     enabled: true
     name: management-cluster-adv
