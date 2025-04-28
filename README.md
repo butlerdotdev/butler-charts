@@ -1,6 +1,6 @@
 # Butler Helm Charts
 
-Welcome to the Helm chart repository for **Butler**, the enterprise Kubernetes-native cluster orchestration platform.  
+Welcome to the Helm chart repository for **Butler**, the enterprise Kubernetes as a Service (KaaS) platform.  
 This repository houses Helm charts for bootstrapping and managing Butler's management cluster and tenant clusters.
 
 ---
