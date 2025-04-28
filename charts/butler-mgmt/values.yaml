@@ -1,0 +1,53 @@
+certManager:
+  enabled: true
+  chartVersion: v1.17.0
+  repositoryUrl: https://charts.jetstack.io
+  installCRDs: true
+  namespace: cert-manager
+
+capi:
+  enabled: true
+  operatorVersion: 0.17.1
+  coreProviderVersion: v1.5.1
+  bootstrapProviderVersion: v1.5.1
+  controlPlaneProviderVersion: v1.5.1
+  kamajiControlPlaneVersion: v0.14.2
+  infrastructureProviderVersion: v1.5.1
+  certIssuerName: capi-operator-selfsigned-issuer
+  certSecretName: capi-operator-webhook-service-cert
+  readinessJob:
+    enabled: true
+    timeoutSeconds: 300
+  nutanixSecret:
+    enabled: true
+    name: nutanix-variables
+    namespace: capx-system
+    data:
+      NUTANIX_ENDPOINT: ""
+      NUTANIX_USER: ""
+      NUTANIX_PASSWORD: ""
+      NUTANIX_INSECURE: "true"
+
+kamaji:
+  enabled: true
+  namespace: kamaji-system
+  values: {}
+
+
+metallb:
+  enabled: true
+  namespace: metallb-system
+  speaker:
+    enabled: true
+    tolerations:
+      - key: "node-role.kubernetes.io/control-plane"
+        operator: "Exists"
+        effect: "NoSchedule"
+  addressPool:
+    enabled: true
+    name: management-cluster-pool
+    addresses:
+      - 10.127.14.24-10.127.14.26
+  l2Advertisement:
+    enabled: true
+    name: management-cluster-adv

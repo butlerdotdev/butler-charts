@@ -1,0 +1,24 @@
+{{- if .Values.capi.enabled }}
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: capi-operator-selfsigned-issuer
+  namespace: capi-operator-system
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: capi-operator-webhook-service-cert
+  namespace: capi-operator-system
+spec:
+  dnsNames:
+    - capi-operator-webhook-service.capi-operator-system.svc
+  secretName: capi-operator-webhook-service-cert
+  issuerRef:
+    name: capi-operator-selfsigned-issuer
+    kind: Issuer
+  commonName: capi-operator-webhook-service.capi-operator-system.svc
+{{- end }}

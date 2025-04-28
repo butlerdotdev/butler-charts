@@ -1,0 +1,24 @@
+apiVersion: v2
+name: butler-mgmt
+description: Butler Management Cluster Bootstrap Chart
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+
+dependencies:
+  - name: cert-manager
+    version: 1.17.0
+    repository: https://charts.jetstack.io
+    alias: cert-manager
+  - name: cluster-api-operator
+    alias: capi-operator
+    version: 0.17.1
+    repository: https://kubernetes-sigs.github.io/cluster-api-operator
+  - name: kamaji
+    version: 1.0.0
+    repository: https://clastix.github.io/charts
+    alias: kamaji
+  - name: metallb
+    version: 0.13.10
+    repository: https://metallb.github.io/metallb
+    alias: metallb

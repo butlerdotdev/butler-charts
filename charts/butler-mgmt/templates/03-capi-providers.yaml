@@ -1,0 +1,60 @@
+{{- if .Values.capi.enabled }}
+
+{{- if .Values.capi.nutanixSecret.enabled }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.capi.nutanixSecret.name }}
+  namespace: {{ .Values.capi.nutanixSecret.namespace }}
+type: Opaque
+stringData:
+  NUTANIX_ENDPOINT: "{{ .Values.capi.nutanixSecret.data.NUTANIX_ENDPOINT }}"
+  NUTANIX_USER: "{{ .Values.capi.nutanixSecret.data.NUTANIX_USER }}"
+  NUTANIX_PASSWORD: "{{ .Values.capi.nutanixSecret.data.NUTANIX_PASSWORD }}"
+  NUTANIX_INSECURE: "{{ .Values.capi.nutanixSecret.data.NUTANIX_INSECURE }}"
+{{- end }}
+
+---
+apiVersion: operator.cluster.x-k8s.io/v1alpha2
+kind: CoreProvider
+metadata:
+  name: cluster-api
+  namespace: capi-system
+spec:
+  version: {{ .Values.capi.coreProviderVersion }}
+---
+apiVersion: operator.cluster.x-k8s.io/v1alpha2
+kind: BootstrapProvider
+metadata:
+  name: kubeadm
+  namespace: capi-kubeadm-bootstrap-system
+spec:
+  version: {{ .Values.capi.bootstrapProviderVersion }}
+---
+apiVersion: operator.cluster.x-k8s.io/v1alpha2
+kind: ControlPlaneProvider
+metadata:
+  name: kubeadm
+  namespace: capi-kubeadm-control-plane-system
+spec:
+  version: {{ .Values.capi.controlPlaneProviderVersion }}
+---
+apiVersion: operator.cluster.x-k8s.io/v1alpha2
+kind: ControlPlaneProvider
+metadata:
+  name: kamaji
+  namespace: capi-kamaji-control-plane-system
+spec:
+  version: {{ .Values.capi.kamajiControlPlaneVersion }}
+---
+apiVersion: operator.cluster.x-k8s.io/v1alpha2
+kind: InfrastructureProvider
+metadata:
+  name: nutanix
+  namespace: capx-system
+spec:
+  version: {{ .Values.capi.infrastructureProviderVersion }}
+  configSecret:
+    name: {{ .Values.capi.nutanixSecret.name }}
+{{- end }}

@@ -1,0 +1,8 @@
+{{- if .Values.certManager.enabled }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.certManager.namespace }}
+  labels:
+    app.kubernetes.io/name: cert-manager
+{{- end }}
