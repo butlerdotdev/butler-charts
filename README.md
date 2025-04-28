@@ -81,7 +81,7 @@ Installation flow respects dependency ordering with Helm hooks and readiness che
 Secrets such as Nutanix infrastructure credentials are handled via:
 
 - Helm templated secrets
-- Optional integration with external secrets managers (Vault, SOPS)
+- Optional integration with external secrets managers (Sealed Secrets, Vault, SOPS)
 - Configuration via `values.yaml` (with secure overrides)
 
 ---
