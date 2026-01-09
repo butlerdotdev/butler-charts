@@ -9,10 +9,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.19.0
-    {{- include "butler-crds.annotations" . | nindent 4 }}
+  name: tenantclusters.butler.butlerlabs.dev
   labels:
     {{- include "butler-crds.labels" . | nindent 4 }}
-  name: tenantclusters.butler.butlerlabs.dev
 spec:
   group: butler.butlerlabs.dev
   names:
