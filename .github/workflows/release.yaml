@@ -1,0 +1,169 @@
+# Release charts to GHCR OCI registry
+name: Release Charts
+
+on:
+  push:
+    tags:
+      - 'butler-*-v*'  # e.g., butler-controller-v0.1.0
+
+env:
+  REGISTRY: ghcr.io
+  REGISTRY_PATH: ghcr.io/butlerdotdev/charts
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Parse tag
+        id: parse
+        run: |
+          # Tag format: butler-<chart>-v<version>
+          # e.g., butler-controller-v0.1.0
+          TAG="${GITHUB_REF#refs/tags/}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          
+          # Extract chart name (everything between 'butler-' and '-v')
+          CHART_NAME=$(echo "$TAG" | sed -E 's/^(butler-[a-z-]+)-v.*/\1/')
+          echo "chart_name=$CHART_NAME" >> $GITHUB_OUTPUT
+          
+          # Extract version
+          VERSION=$(echo "$TAG" | sed -E 's/.*-v(.*)/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+          echo "Parsed: chart=$CHART_NAME version=$VERSION"
+
+      - name: Validate chart exists
+        run: |
+          CHART_DIR="charts/${{ steps.parse.outputs.chart_name }}"
+          if [[ ! -d "$CHART_DIR" ]]; then
+            echo "Error: Chart directory $CHART_DIR not found"
+            exit 1
+          fi
+          echo "Found chart at $CHART_DIR"
+
+      - name: Validate version matches
+        run: |
+          CHART_DIR="charts/${{ steps.parse.outputs.chart_name }}"
+          CHART_VERSION=$(grep '^version:' "$CHART_DIR/Chart.yaml" | awk '{print $2}')
+          TAG_VERSION="${{ steps.parse.outputs.version }}"
+          
+          if [[ "$CHART_VERSION" != "$TAG_VERSION" ]]; then
+            echo "Error: Chart version ($CHART_VERSION) does not match tag version ($TAG_VERSION)"
+            exit 1
+          fi
+          echo "Version validated: $CHART_VERSION"
+
+      - name: Lint chart
+        run: |
+          helm lint "charts/${{ steps.parse.outputs.chart_name }}"
+
+      - name: Package chart
+        run: |
+          helm package "charts/${{ steps.parse.outputs.chart_name }}" -d .packages/
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push chart to GHCR
+        run: |
+          CHART_NAME="${{ steps.parse.outputs.chart_name }}"
+          VERSION="${{ steps.parse.outputs.version }}"
+          PACKAGE=".packages/${CHART_NAME}-${VERSION}.tgz"
+          
+          echo "Pushing $PACKAGE to ${{ env.REGISTRY_PATH }}..."
+          helm push "$PACKAGE" "oci://${{ env.REGISTRY_PATH }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "${{ steps.parse.outputs.chart_name }} v${{ steps.parse.outputs.version }}"
+          body: |
+            ## ${{ steps.parse.outputs.chart_name }} v${{ steps.parse.outputs.version }}
+            
+            ### Installation
+            
+            ```bash
+            helm install ${{ steps.parse.outputs.chart_name }} oci://${{ env.REGISTRY_PATH }}/${{ steps.parse.outputs.chart_name }} --version ${{ steps.parse.outputs.version }}
+            ```
+            
+            ### Pull
+            
+            ```bash
+            helm pull oci://${{ env.REGISTRY_PATH }}/${{ steps.parse.outputs.chart_name }} --version ${{ steps.parse.outputs.version }}
+            ```
+          files: |
+            .packages/${{ steps.parse.outputs.chart_name }}-${{ steps.parse.outputs.version }}.tgz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Release all charts at once (for coordinated releases)
+  release-all:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/tags/release-*'  # e.g., release-v0.1.0
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Package and push all charts
+        run: |
+          mkdir -p .packages
+          
+          for chart_dir in charts/*/; do
+            chart_name=$(basename "$chart_dir")
+            echo "Processing $chart_name..."
+            
+            # Lint
+            helm lint "$chart_dir"
+            
+            # Package
+            helm package "$chart_dir" -d .packages/
+            
+            # Get version
+            version=$(grep '^version:' "$chart_dir/Chart.yaml" | awk '{print $2}')
+            
+            # Push
+            echo "Pushing $chart_name v$version..."
+            helm push ".packages/${chart_name}-${version}.tgz" "oci://${{ env.REGISTRY_PATH }}"
+          done
+          
+          echo "All charts published!"

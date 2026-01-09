@@ -1,0 +1,33 @@
+Butler Provider Harvester has been deployed!
+
+This provider enables Butler to provision VMs on Harvester HCI.
+
+To check the provider status:
+  kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "butler-provider-harvester.name" . }}
+
+To view provider logs:
+  kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "butler-provider-harvester.name" . }} -f
+
+Prerequisites for Harvester:
+  1. Upload Talos image to Harvester (with qemu-guest-agent extension)
+  2. Create a VM network in Harvester
+  3. Create a ProviderConfig with Harvester kubeconfig
+
+Example ProviderConfig:
+  apiVersion: butler.butlerlabs.dev/v1alpha1
+  kind: ProviderConfig
+  metadata:
+    name: harvester-provider
+    namespace: butler-system
+  spec:
+    provider: harvester
+    credentialsRef:
+      name: harvester-kubeconfig
+      namespace: butler-system
+      key: kubeconfig
+    harvester:
+      namespace: default
+      networkName: default/vm-network
+      imageName: default/talos-v1.9.0
+
+Documentation: https://docs.butlerlabs.dev/providers/harvester

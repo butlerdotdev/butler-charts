@@ -1,0 +1,31 @@
+apiVersion: v2
+name: butler-bootstrap
+description: Butler Bootstrap controller for management cluster creation
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+kubeVersion: ">=1.28.0-0"
+
+keywords:
+  - butler
+  - kubernetes
+  - bootstrap
+  - management-cluster
+  - talos
+
+home: https://butlerlabs.dev
+sources:
+  - https://github.com/butlerdotdev/butler-bootstrap
+  - https://github.com/butlerdotdev/butler-charts
+
+maintainers:
+  - name: Butler Labs
+    email: founder@butlerlabs.dev
+    url: https://butlerlabs.dev
+
+annotations:
+  artifacthub.io/category: integration-delivery
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/operator: "true"
+  artifacthub.io/operatorCapabilities: Full Lifecycle
+  artifacthub.io/prerelease: "true"

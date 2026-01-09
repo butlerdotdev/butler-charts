@@ -1,0 +1,82 @@
+# Butler Edge Profile
+# Resource-constrained deployment for edge locations, homelabs, and single-node clusters
+#
+# Usage:
+#   helm install butler-controller butler/butler-controller -f profiles/edge.yaml
+#
+# This profile optimizes for:
+#   - Single-node deployments
+#   - Resource-constrained environments
+#   - Homelab and development use cases
+#   - Edge locations with limited resources
+#
+# Trade-offs:
+#   - No high availability (single replica)
+#   - Reduced resource requests/limits
+#   - Simplified configuration
+
+global:
+  profile: edge
+
+# butler-bootstrap configuration
+butler-bootstrap:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+# butler-controller configuration
+butler-controller:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  # Disable leader election for single replica
+  leaderElection:
+    enabled: false
+
+# butler-provider-* configuration (applies to all providers)
+butler-provider:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+  leaderElection:
+    enabled: false
+
+# butler-console configuration
+butler-console:
+  enabled: true
+  server:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 250m
+        memory: 128Mi
+  frontend:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 25m
+        memory: 32Mi
+      limits:
+        cpu: 100m
+        memory: 64Mi
+  # Simplified ingress for edge
+  ingress:
+    enabled: false

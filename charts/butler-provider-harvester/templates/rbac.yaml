@@ -1,0 +1,56 @@
+{{/*
+Copyright 2026 The Butler Authors.
+SPDX-License-Identifier: Apache-2.0
+*/}}
+{{- if .Values.rbac.create -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "butler-provider-harvester.fullname" . }}
+  labels:
+    {{- include "butler-provider-harvester.labels" . | nindent 4 }}
+rules:
+  # Core resources
+  - apiGroups: [""]
+    resources: ["secrets", "configmaps", "events"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list", "watch"]
+  
+  # Butler CRDs - MachineRequest
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["machinerequests"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["machinerequests/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["machinerequests/finalizers"]
+    verbs: ["update"]
+  
+  # Butler CRDs - ProviderConfig (read-only)
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["providerconfigs"]
+    verbs: ["get", "list", "watch"]
+  
+  # Coordination for leader election
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "butler-provider-harvester.fullname" . }}
+  labels:
+    {{- include "butler-provider-harvester.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "butler-provider-harvester.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "butler-provider-harvester.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

@@ -1,0 +1,106 @@
+# Butler Core Profile
+# Full-featured deployment for production management clusters
+#
+# Usage:
+#   helm install butler-controller butler/butler-controller -f profiles/core.yaml
+#
+# This profile optimizes for:
+#   - Production deployments
+#   - High availability
+#   - Multi-node management clusters
+#   - Enterprise environments
+#
+# Features:
+#   - Multiple replicas for HA
+#   - Leader election enabled
+#   - Production-grade resource allocation
+#   - Full observability
+
+global:
+  profile: core
+
+# butler-bootstrap configuration
+# Note: Bootstrap is typically single-replica as it runs during cluster creation
+butler-bootstrap:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+
+# butler-controller configuration
+butler-controller:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+  leaderElection:
+    enabled: true
+  # Pod disruption budget for HA
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  # Topology spread for resilience
+  topologySpreadConstraints:
+    enabled: true
+    maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+
+# butler-provider-* configuration (applies to all providers)
+butler-provider:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  leaderElection:
+    enabled: true
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+
+# butler-console configuration
+butler-console:
+  enabled: true
+  server:
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
+  frontend:
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+  ingress:
+    enabled: true
+    className: ""
+    annotations: {}
+    hosts:
+      - host: butler.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []

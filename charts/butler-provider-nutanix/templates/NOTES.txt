@@ -1,0 +1,33 @@
+Butler Provider Nutanix has been deployed!
+
+This provider enables Butler to provision VMs on Nutanix AHV.
+
+To check the provider status:
+  kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "butler-provider-nutanix.name" . }}
+
+To view provider logs:
+  kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "butler-provider-nutanix.name" . }} -f
+
+Prerequisites for Nutanix:
+  1. Upload Talos image to Nutanix (with qemu-guest-agent extension)
+  2. Create a VM network in Nutanix
+  3. Create a ProviderConfig with Nutanix kubeconfig
+
+Example ProviderConfig:
+  apiVersion: butler.butlerlabs.dev/v1alpha1
+  kind: ProviderConfig
+  metadata:
+    name: nutanix-provider
+    namespace: butler-system
+  spec:
+    provider: nutanix
+    credentialsRef:
+      name: nutanix-kubeconfig
+      namespace: butler-system
+      key: kubeconfig
+    nutanix:
+      namespace: default
+      networkName: default/vm-network
+      imageName: default/talos-v1.9.0
+
+Documentation: https://docs.butlerlabs.dev/providers/nutanix

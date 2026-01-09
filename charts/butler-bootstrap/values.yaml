@@ -1,0 +1,125 @@
+# Butler Bootstrap Helm Chart Values
+# Bootstrap controller for management cluster creation
+
+# -- Number of controller replicas (typically 1 during bootstrap)
+replicaCount: 1
+
+image:
+  # -- Image repository
+  repository: ghcr.io/butlerdotdev/butler-bootstrap
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+  # -- Image tag (defaults to chart appVersion)
+  tag: ""
+
+# -- Image pull secrets for private registries
+imagePullSecrets: []
+
+# -- Override the release name
+nameOverride: ""
+# -- Override the full release name
+fullnameOverride: ""
+
+serviceAccount:
+  # -- Create a service account
+  create: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- Service account name (generated if not set)
+  name: ""
+
+# -- Pod annotations
+podAnnotations: {}
+
+# -- Pod labels
+podLabels: {}
+
+# -- Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+# -- Container security context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+# -- Resource requests and limits
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# -- Node selector
+nodeSelector: {}
+
+# -- Tolerations
+tolerations: []
+
+# -- Affinity rules
+affinity: {}
+
+# Controller configuration
+controller:
+  # -- Log level (debug, info, warn, error)
+  logLevel: info
+  # -- Metrics bind address
+  metricsBindAddress: ":8080"
+  # -- Health probe bind address
+  healthProbeBindAddress: ":8081"
+
+# Leader election configuration
+leaderElection:
+  # -- Enable leader election (disabled by default for bootstrap)
+  enabled: false
+  # -- Leader election resource name
+  resourceName: butler-bootstrap-leader
+
+# Network configuration for bootstrap
+network:
+  # -- Use host network (required for accessing infrastructure APIs)
+  hostNetwork: true
+  # -- DNS policy when using host network
+  dnsPolicy: ClusterFirstWithHostNet
+
+# Tool paths (embedded in container)
+tools:
+  # -- Path to talosctl binary
+  talosctl: /usr/local/bin/talosctl
+  # -- Path to helm binary
+  helm: /usr/local/bin/helm
+  # -- Path to kubectl binary
+  kubectl: /usr/local/bin/kubectl
+
+# CA certificates
+caCerts:
+  # -- Mount host CA certificates
+  mountHostCerts: true
+  # -- Host path for CA certificates
+  hostPath: /etc/ssl/certs
+
+# RBAC configuration
+rbac:
+  # -- Create RBAC resources
+  create: true
+
+# Service configuration
+service:
+  # -- Service type
+  type: ClusterIP
+  # -- Metrics port
+  metricsPort: 8080
+  # -- Health port
+  healthPort: 8081
+
+# -- Additional environment variables
+extraEnv: []
+
+# -- Termination grace period
+terminationGracePeriodSeconds: 10

@@ -1,0 +1,44 @@
+Butler Console has been deployed!
+
+Components:
+{{- if .Values.server.enabled }}
+  ✓ Server (API): {{ .Values.server.replicaCount }} replica(s)
+{{- end }}
+{{- if .Values.frontend.enabled }}
+  ✓ Frontend (UI): {{ .Values.frontend.replicaCount }} replica(s)
+{{- end }}
+
+To check deployment status:
+  kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/part-of=butler
+
+{{- if .Values.ingress.enabled }}
+
+Access the console at:
+{{- range .Values.ingress.hosts }}
+  {{- if $.Values.ingress.tls }}
+  https://{{ .host }}
+  {{- else }}
+  http://{{ .host }}
+  {{- end }}
+{{- end }}
+{{- else }}
+
+To access the console locally:
+  # Port forward the frontend
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "butler-console.frontend.fullname" . }} 3000:{{ .Values.frontend.service.port }}
+  
+  # Open in browser
+  open http://localhost:3000
+
+To access the API:
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "butler-console.server.fullname" . }} 8080:{{ .Values.server.service.port }}
+{{- end }}
+
+To view logs:
+  # Server logs
+  kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/component=server -f
+  
+  # Frontend logs
+  kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/component=frontend -f
+
+Documentation: https://docs.butlerlabs.dev/console

@@ -1,0 +1,124 @@
+{{/*
+Copyright 2026 The Butler Authors.
+SPDX-License-Identifier: Apache-2.0
+*/}}
+{{- if .Values.rbac.create -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "butler-controller.fullname" . }}
+  labels:
+    {{- include "butler-controller.labels" . | nindent 4 }}
+  {{- with .Values.rbac.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+rules:
+  # Core resources
+  - apiGroups: [""]
+    resources: ["secrets", "configmaps", "events"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list", "watch", "create"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["roles", "rolebindings"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list", "watch"]
+  
+  # Butler CRDs - TenantCluster
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["tenantclusters"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["tenantclusters/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["tenantclusters/finalizers"]
+    verbs: ["update"]
+  
+  # Butler CRDs - TenantAddon
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["tenantaddons"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["tenantaddons/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["tenantaddons/finalizers"]
+    verbs: ["update"]
+  
+  # Butler CRDs - Team
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["teams"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["teams/status"]
+    verbs: ["get", "update", "patch"]
+  
+  # Butler CRDs - ButlerConfig
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["butlerconfigs"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["butlerconfigs/status"]
+    verbs: ["get", "update", "patch"]
+  
+  # Butler CRDs - ProviderConfig (read-only)
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["providerconfigs"]
+    verbs: ["get", "list", "watch"]
+  
+  # Cluster API resources
+  - apiGroups: ["cluster.x-k8s.io"]
+    resources: ["clusters", "machines", "machinedeployments", "machinesets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["cluster.x-k8s.io"]
+    resources: ["clusters/status", "machines/status"]
+    verbs: ["get", "update", "patch"]
+  
+  # Kamaji control plane provider
+  - apiGroups: ["controlplane.cluster.x-k8s.io"]
+    resources: ["kamajicontrolplanes"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["controlplane.cluster.x-k8s.io"]
+    resources: ["kamajicontrolplanes/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["kamaji.clastix.io"]
+    resources: ["tenantcontrolplanes"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["kamaji.clastix.io"]
+    resources: ["tenantcontrolplanes/status"]
+    verbs: ["get", "watch"]
+  
+  # Infrastructure providers (Harvester, Nutanix, Proxmox)
+  - apiGroups: ["infrastructure.cluster.x-k8s.io"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  
+  # Coordination for leader election
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "butler-controller.fullname" . }}
+  labels:
+    {{- include "butler-controller.labels" . | nindent 4 }}
+  {{- with .Values.rbac.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "butler-controller.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "butler-controller.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

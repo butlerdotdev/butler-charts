@@ -1,0 +1,32 @@
+apiVersion: v2
+name: butler-console
+description: Butler web-based management console
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+kubeVersion: ">=1.28.0-0"
+
+keywords:
+  - butler
+  - kubernetes
+  - console
+  - dashboard
+  - platform
+
+home: https://butlerlabs.dev
+sources:
+  - https://github.com/butlerdotdev/butler-console
+  - https://github.com/butlerdotdev/butler-charts
+
+maintainers:
+  - name: Butler Labs
+    email: founder@butlerlabs.dev
+    url: https://butlerlabs.dev
+
+annotations:
+  artifacthub.io/category: integration-delivery
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/prerelease: "true"
+  artifacthub.io/screenshots: |
+    - title: Dashboard
+      url: https://butlerlabs.dev/screenshots/console-dashboard.png

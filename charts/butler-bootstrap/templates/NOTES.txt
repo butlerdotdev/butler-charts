@@ -1,0 +1,22 @@
+Butler Bootstrap Controller has been deployed!
+
+This controller is used during management cluster bootstrap to:
+  - Process ClusterBootstrap CRs
+  - Create MachineRequest CRs for infrastructure provisioning
+  - Configure Talos Linux on provisioned VMs
+  - Install cluster addons (CNI, storage, etc.)
+
+To check the controller status:
+  kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "butler-bootstrap.name" . }}
+
+To view controller logs:
+  kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "butler-bootstrap.name" . }} -f
+
+To check ClusterBootstrap status:
+  kubectl get clusterbootstraps -n {{ .Release.Namespace }}
+  kubectl describe clusterbootstrap <name> -n {{ .Release.Namespace }}
+
+NOTE: This controller is typically deployed automatically during
+      `butleradm bootstrap` and runs in a temporary KIND cluster.
+
+Documentation: https://docs.butlerlabs.dev

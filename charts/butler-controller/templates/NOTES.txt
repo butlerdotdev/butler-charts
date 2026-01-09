@@ -1,0 +1,50 @@
+Butler Controller has been deployed successfully!
+
+{{- if .Values.leaderElection.enabled }}
+Leader Election: Enabled
+{{- else }}
+Leader Election: Disabled (single replica mode)
+{{- end }}
+
+Replicas: {{ .Values.replicaCount }}
+
+To check the controller status:
+  kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "butler-controller.name" . }}
+
+To view controller logs:
+  kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "butler-controller.name" . }} -f
+
+{{- if .Values.metrics.enabled }}
+
+Metrics are available at:
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "butler-controller.fullname" . }} {{ .Values.service.metricsPort }}:{{ .Values.service.metricsPort }}
+  curl http://localhost:{{ .Values.service.metricsPort }}/metrics
+{{- end }}
+
+Next Steps:
+  1. Create a TenantCluster:
+     kubectl apply -f - <<EOF
+     apiVersion: butler.butlerlabs.dev/v1alpha1
+     kind: TenantCluster
+     metadata:
+       name: my-cluster
+       namespace: default
+     spec:
+       name: my-cluster
+       kubernetes:
+         version: v1.30.0
+       controlPlane:
+         replicas: 1
+       workers:
+         pools:
+           - name: default
+             replicas: 2
+             cpu: 2
+             memoryMB: 4096
+             diskGB: 50
+     EOF
+
+  2. Check cluster status:
+     kubectl get tenantclusters -A
+
+Documentation: https://docs.butlerlabs.dev

@@ -1,0 +1,43 @@
+Butler CRDs have been installed successfully!
+
+Installed CRDs:
+{{- if .Values.crds.clusterBootstrap }}
+  - clusterbootstraps.butler.butlerlabs.dev
+{{- end }}
+{{- if .Values.crds.machineRequest }}
+  - machinerequests.butler.butlerlabs.dev
+{{- end }}
+{{- if .Values.crds.providerConfig }}
+  - providerconfigs.butler.butlerlabs.dev
+{{- end }}
+{{- if .Values.crds.tenantCluster }}
+  - tenantclusters.butler.butlerlabs.dev
+{{- end }}
+{{- if .Values.crds.tenantAddon }}
+  - tenantaddons.butler.butlerlabs.dev
+{{- end }}
+{{- if .Values.crds.team }}
+  - teams.butler.butlerlabs.dev
+{{- end }}
+{{- if .Values.crds.butlerConfig }}
+  - butlerconfigs.butler.butlerlabs.dev
+{{- end }}
+
+{{- if .Values.keep }}
+
+NOTE: CRDs are configured to be retained on chart uninstall.
+To fully remove CRDs (WARNING: this deletes all Butler resources!):
+  kubectl delete crd -l app.kubernetes.io/name=butler-crds
+{{- end }}
+
+Next Steps:
+  1. Install butler-controller:
+     helm install butler-controller oci://ghcr.io/butlerdotdev/charts/butler-controller
+
+  2. Install a provider (if managing infrastructure):
+     helm install butler-provider-harvester oci://ghcr.io/butlerdotdev/charts/butler-provider-harvester
+
+  3. Optionally install the console:
+     helm install butler-console oci://ghcr.io/butlerdotdev/charts/butler-console
+
+Documentation: https://docs.butlerlabs.dev

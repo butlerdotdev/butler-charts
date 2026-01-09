@@ -1,0 +1,29 @@
+# Butler CRDs Helm Chart Values
+# This chart installs Custom Resource Definitions only - no runtime components
+
+# -- Annotations to add to all CRDs
+annotations: {}
+
+# -- Labels to add to all CRDs
+labels: {}
+
+# -- Enable or disable specific CRD groups
+crds:
+  # -- Install ClusterBootstrap CRD (management cluster creation)
+  clusterBootstrap: true
+  # -- Install MachineRequest CRD (VM provisioning interface)
+  machineRequest: true
+  # -- Install ProviderConfig CRD (infrastructure provider settings)
+  providerConfig: true
+  # -- Install TenantCluster CRD (tenant cluster lifecycle)
+  tenantCluster: true
+  # -- Install TenantAddon CRD (addon management)
+  tenantAddon: true
+  # -- Install Team CRD (multi-tenancy)
+  team: true
+  # -- Install ButlerConfig CRD (platform configuration)
+  butlerConfig: true
+
+# -- Keep CRDs on chart uninstall (recommended for production)
+# Setting this to true adds the "helm.sh/resource-policy: keep" annotation
+keep: true

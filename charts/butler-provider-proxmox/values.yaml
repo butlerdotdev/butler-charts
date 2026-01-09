@@ -1,0 +1,109 @@
+# Butler Provider Proxmox Helm Chart Values
+# Infrastructure provider for Proxmox VE
+
+# -- Number of controller replicas
+replicaCount: 1
+
+image:
+  # -- Image repository
+  repository: ghcr.io/butlerdotdev/butler-provider-proxmox
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+  # -- Image tag (defaults to chart appVersion)
+  tag: ""
+
+# -- Image pull secrets for private registries
+imagePullSecrets: []
+
+# -- Override the release name
+nameOverride: ""
+# -- Override the full release name
+fullnameOverride: ""
+
+serviceAccount:
+  # -- Create a service account
+  create: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- Service account name (generated if not set)
+  name: ""
+
+# -- Pod annotations
+podAnnotations: {}
+
+# -- Pod labels
+podLabels: {}
+
+# -- Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+# -- Container security context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+# -- Resource requests and limits
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# -- Node selector
+nodeSelector: {}
+
+# -- Tolerations
+tolerations: []
+
+# -- Affinity rules
+affinity: {}
+
+# Controller configuration
+controller:
+  # -- Log level (debug, info, warn, error)
+  logLevel: info
+  # -- Metrics bind address
+  metricsBindAddress: ":8087"
+  # -- Health probe bind address
+  healthProbeBindAddress: ":8086"
+
+# Leader election configuration
+leaderElection:
+  # -- Enable leader election
+  enabled: false
+  # -- Leader election resource name
+  resourceName: butler-provider-proxmox-leader
+
+# Network configuration
+network:
+  # -- Use host network (required for accessing Proxmox API via VPN/Tailscale)
+  hostNetwork: true
+  # -- DNS policy when using host network
+  dnsPolicy: ClusterFirstWithHostNet
+
+# RBAC configuration
+rbac:
+  # -- Create RBAC resources
+  create: true
+
+# Service configuration
+service:
+  # -- Service type
+  type: ClusterIP
+  # -- Metrics port
+  metricsPort: 8083
+  # -- Health port
+  healthPort: 8082
+
+# -- Additional environment variables
+extraEnv: []
+
+# -- Termination grace period
+terminationGracePeriodSeconds: 10

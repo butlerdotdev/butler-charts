@@ -1,0 +1,157 @@
+# Butler Controller Helm Chart Values
+# TenantCluster lifecycle controller for multi-cluster management
+
+# -- Number of controller replicas
+replicaCount: 1
+
+image:
+  # -- Image repository
+  repository: ghcr.io/butlerdotdev/butler-controller
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+  # -- Image tag (defaults to chart appVersion)
+  tag: ""
+
+# -- Image pull secrets for private registries
+imagePullSecrets: []
+
+# -- Override the release name
+nameOverride: ""
+# -- Override the full release name
+fullnameOverride: ""
+
+serviceAccount:
+  # -- Create a service account
+  create: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- Service account name (generated if not set)
+  name: ""
+
+# -- Pod annotations
+podAnnotations: {}
+
+# -- Pod labels
+podLabels: {}
+
+# -- Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+# -- Container security context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+
+# -- Resource requests and limits
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# -- Node selector
+nodeSelector: {}
+
+# -- Tolerations
+tolerations: []
+
+# -- Affinity rules
+affinity: {}
+
+# -- Topology spread constraints
+topologySpreadConstraints: []
+
+# Controller configuration
+controller:
+  # -- Log level (debug, info, warn, error)
+  logLevel: info
+  # -- Log format (json, console)
+  logFormat: json
+  # -- Metrics bind address
+  metricsBindAddress: ":8080"
+  # -- Health probe bind address
+  healthProbeBindAddress: ":8081"
+  # -- Webhook server port
+  webhookPort: 9443
+  # -- Enable webhooks
+  webhooksEnabled: false
+  # -- Concurrent reconciles for TenantCluster
+  concurrentReconciles: 5
+
+# Leader election configuration
+leaderElection:
+  # -- Enable leader election (required for HA)
+  enabled: true
+  # -- Leader election resource name
+  resourceName: butler-controller-leader
+  # -- Leader election resource namespace (defaults to release namespace)
+  resourceNamespace: ""
+
+# RBAC configuration
+rbac:
+  # -- Create RBAC resources
+  create: true
+  # -- Annotations for RBAC resources
+  annotations: {}
+
+# Service configuration
+service:
+  # -- Service type
+  type: ClusterIP
+  # -- Metrics port
+  metricsPort: 8080
+  # -- Health port
+  healthPort: 8081
+
+# Metrics configuration
+metrics:
+  # -- Enable Prometheus metrics
+  enabled: true
+  # -- Create ServiceMonitor for Prometheus Operator
+  serviceMonitor:
+    enabled: false
+    # -- Additional labels for ServiceMonitor
+    labels: {}
+    # -- Scrape interval
+    interval: 30s
+    # -- Scrape timeout
+    scrapeTimeout: 10s
+
+# Pod disruption budget
+podDisruptionBudget:
+  # -- Enable PDB
+  enabled: false
+  # -- Minimum available pods
+  minAvailable: 1
+  # -- Maximum unavailable pods (mutually exclusive with minAvailable)
+  # maxUnavailable: 1
+
+# CRDs dependency
+crds:
+  # -- Install CRDs as a dependency
+  install: false
+
+# -- Additional environment variables
+extraEnv: []
+# - name: MY_VAR
+#   value: "my-value"
+
+# -- Additional volume mounts
+extraVolumeMounts: []
+
+# -- Additional volumes
+extraVolumes: []
+
+# -- Priority class name
+priorityClassName: ""
+
+# -- Termination grace period
+terminationGracePeriodSeconds: 10
