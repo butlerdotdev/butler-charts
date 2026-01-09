@@ -2,7 +2,7 @@
 # hack/sync-crds.sh - Sync CRDs from butler-api into Helm chart templates
 # Copyright 2026 The Butler Authors.
 # SPDX-License-Identifier: Apache-2.0
-set -euo pipefail
+set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -51,17 +51,20 @@ Source: config/crd/bases/$crd_file
 {{- if .Values.crds.${values_key} }}
 EOF
 
-    # Process CRD: inject Helm labels after metadata.name line
-    while IFS= read -r line; do
-        echo "$line" >> "$dest"
-        if [[ "$line" =~ ^"  name: ".*"butler.butlerlabs.dev"$ ]]; then
-            echo "  labels:" >> "$dest"
-            echo "    {{- include \"butler-crds.labels\" . | nindent 4 }}" >> "$dest"
-        fi
-    done < "$src"
+    # Append CRD content with Helm labels injected after metadata.name
+    awk '
+        /^  name:.*butler\.butlerlabs\.dev$/ {
+            print
+            print "  labels:"
+            print "    {{- include \"butler-crds.labels\" . | nindent 4 }}"
+            next
+        }
+        { print }
+    ' "$src" >> "$dest"
     
     echo "{{- end }}" >> "$dest"
-    ((synced++))
+    synced=$((synced + 1))
 done
 
 echo "Done: $synced CRDs synced"
+exit 0
