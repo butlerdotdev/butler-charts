@@ -1,10 +1,11 @@
 #!/bin/bash
-# scripts/sync-crds.sh - Sync CRDs from butler-api into Helm chart templates
+# hack/sync-crds.sh - Sync CRDs from butler-api into Helm chart templates
+# Copyright 2026 The Butler Authors.
+# SPDX-License-Identifier: Apache-2.0
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-
 BUTLER_API_PATH="${1:-${BUTLER_API_PATH:-$REPO_ROOT/../butler-api}}"
 CRD_SOURCE="$BUTLER_API_PATH/config/crd/bases"
 CRD_DEST="$REPO_ROOT/charts/butler-crds/templates"
@@ -41,6 +42,7 @@ for mapping in "${CRD_MAPPINGS[@]}"; do
     
     echo "SYNC: $crd_file → $template_name"
     
+    # Write header
     cat > "$dest" << EOF
 {{/*
 AUTO-GENERATED FROM butler-api - DO NOT EDIT
@@ -49,8 +51,14 @@ Source: config/crd/bases/$crd_file
 {{- if .Values.crds.${values_key} }}
 EOF
 
-    # Inject Helm labels after metadata.name
-    sed '/^  name:/a\  labels:\n    {{- include "butler-crds.labels" . | nindent 4 }}' "$src" >> "$dest"
+    # Process CRD: inject Helm labels after metadata.name line
+    while IFS= read -r line; do
+        echo "$line" >> "$dest"
+        if [[ "$line" =~ ^"  name: ".*"butler.butlerlabs.dev"$ ]]; then
+            echo "  labels:" >> "$dest"
+            echo "    {{- include \"butler-crds.labels\" . | nindent 4 }}" >> "$dest"
+        fi
+    done < "$src"
     
     echo "{{- end }}" >> "$dest"
     ((synced++))
