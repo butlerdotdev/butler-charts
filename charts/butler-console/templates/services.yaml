@@ -2,7 +2,7 @@
 Copyright 2026 The Butler Authors.
 SPDX-License-Identifier: Apache-2.0
 */}}
-{{- if .Values.server.enabled -}}
+{{- if .Values.server.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -24,8 +24,8 @@ spec:
   selector:
     {{- include "butler-console.server.selectorLabels" . | nindent 4 }}
 {{- end }}
+{{- if .Values.frontend.enabled }}
 ---
-{{- if .Values.frontend.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
