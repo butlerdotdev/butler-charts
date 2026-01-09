@@ -53,10 +53,15 @@ EOF
 
     # Append CRD content with Helm labels injected after metadata.name
     awk '
-        /^  name:.*butler\.butlerlabs\.dev$/ {
+        /controller-gen\.kubebuilder\.io\/version:/ {
             print
+            print "    {{- include \"butler-crds.annotations\" . | nindent 4 }}"
+            next
+        }
+        /^  name:.*butler\.butlerlabs\.dev$/ {
             print "  labels:"
             print "    {{- include \"butler-crds.labels\" . | nindent 4 }}"
+            print
             next
         }
         { print }
