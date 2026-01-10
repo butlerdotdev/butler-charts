@@ -23,9 +23,28 @@ spec:
       name: metrics
   selector:
     {{- include "butler-console.server.selectorLabels" . | nindent 4 }}
-{{- end }}
-{{- if .Values.frontend.enabled }}
 ---
+# Alias service for nginx proxy_pass (nginx.conf uses "butler-server")
+apiVersion: v1
+kind: Service
+metadata:
+  name: butler-server
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "butler-console.labels" . | nindent 4 }}
+    app.kubernetes.io/component: server-alias
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "butler-console.server.selectorLabels" . | nindent 4 }}
+{{- end }}
+---
+{{- if .Values.frontend.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -37,7 +56,7 @@ spec:
   type: {{ .Values.frontend.service.type }}
   ports:
     - port: {{ .Values.frontend.service.port }}
-      targetPort: http
+      targetPort: 8080
       protocol: TCP
       name: http
   selector:

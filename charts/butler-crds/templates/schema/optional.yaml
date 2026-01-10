@@ -1,0 +1,279 @@
+# =============================================================================
+# Butler Built-in AddonDefinitions - Optional Addons
+# These can be installed by users after cluster creation
+# =============================================================================
+---
+# Observability
+---
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: prometheus-operator
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
+spec:
+  displayName: Prometheus Operator
+  description: Full monitoring stack with Prometheus, Alertmanager, and Grafana dashboards
+  category: observability
+  icon: "🔥"
+  platform: false
+  chart:
+    repository: https://prometheus-community.github.io/helm-charts
+    name: kube-prometheus-stack
+    defaultVersion: "65.8.1"
+    availableVersions:
+      - "65.8.1"
+      - "65.5.0"
+      - "64.0.0"
+  defaults:
+    namespace: monitoring
+    releaseName: prometheus
+    createNamespace: true
+    timeout: "15m"
+    values:
+      prometheus:
+        prometheusSpec:
+          retention: 15d
+          storageSpec:
+            volumeClaimTemplate:
+              spec:
+                accessModes: ["ReadWriteOnce"]
+                resources:
+                  requests:
+                    storage: 50Gi
+      grafana:
+        enabled: true
+        adminPassword: butler-admin
+      alertmanager:
+        enabled: true
+  links:
+    documentation: https://prometheus-operator.dev
+    source: https://github.com/prometheus-operator/prometheus-operator
+    homepage: https://prometheus.io
+---
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: victoria-metrics
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
+spec:
+  displayName: Victoria Metrics
+  description: Fast, cost-effective, and scalable time-series database for metrics
+  category: observability
+  icon: "📊"
+  platform: false
+  chart:
+    repository: https://victoriametrics.github.io/helm-charts
+    name: victoria-metrics-k8s-stack
+    defaultVersion: "0.28.2"
+    availableVersions:
+      - "0.28.2"
+      - "0.27.0"
+  defaults:
+    namespace: monitoring
+    releaseName: victoria-metrics
+    createNamespace: true
+    timeout: "15m"
+  links:
+    documentation: https://docs.victoriametrics.com
+    source: https://github.com/VictoriaMetrics/VictoriaMetrics
+    homepage: https://victoriametrics.com
+---
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: victoria-logs
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
+spec:
+  displayName: Victoria Logs
+  description: High-performance log management and analysis solution
+  category: observability
+  icon: "📝"
+  platform: false
+  chart:
+    repository: https://victoriametrics.github.io/helm-charts
+    name: victoria-logs-single
+    defaultVersion: "0.8.13"
+    availableVersions:
+      - "0.8.13"
+      - "0.8.0"
+  defaults:
+    namespace: logging
+    releaseName: victoria-logs
+    createNamespace: true
+    timeout: "10m"
+  links:
+    documentation: https://docs.victoriametrics.com/victorialogs
+    source: https://github.com/VictoriaMetrics/VictoriaMetrics
+---
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: tempo
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
+spec:
+  displayName: Grafana Tempo
+  description: Distributed tracing backend for high-scale request flow analysis
+  category: observability
+  icon: "🔍"
+  platform: false
+  chart:
+    repository: https://grafana.github.io/helm-charts
+    name: tempo
+    defaultVersion: "1.10.3"
+    availableVersions:
+      - "1.10.3"
+      - "1.10.0"
+      - "1.9.0"
+  defaults:
+    namespace: tracing
+    releaseName: tempo
+    createNamespace: true
+    timeout: "10m"
+  links:
+    documentation: https://grafana.com/docs/tempo/latest
+    source: https://github.com/grafana/tempo
+    homepage: https://grafana.com/oss/tempo
+---
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: jaeger
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
+spec:
+  displayName: Jaeger
+  description: End-to-end distributed tracing and service mesh observability
+  category: observability
+  icon: "🎯"
+  platform: false
+  chart:
+    repository: https://jaegertracing.github.io/helm-charts
+    name: jaeger
+    defaultVersion: "3.3.1"
+    availableVersions:
+      - "3.3.1"
+      - "3.2.0"
+  defaults:
+    namespace: tracing
+    releaseName: jaeger
+    createNamespace: true
+    timeout: "10m"
+  links:
+    documentation: https://www.jaegertracing.io/docs
+    source: https://github.com/jaegertracing/jaeger
+    homepage: https://www.jaegertracing.io
+---
+# Backup & Recovery
+---
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: velero
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: backup
+spec:
+  displayName: Velero
+  description: Backup, restore, and migrate Kubernetes resources and persistent volumes
+  category: backup
+  icon: "🛡️"
+  platform: false
+  chart:
+    repository: https://vmware-tanzu.github.io/helm-charts
+    name: velero
+    defaultVersion: "7.2.1"
+    availableVersions:
+      - "7.2.1"
+      - "7.1.0"
+      - "6.7.0"
+  defaults:
+    namespace: velero
+    releaseName: velero
+    createNamespace: true
+    timeout: "10m"
+    values:
+      # Users must configure a backup storage location
+      configuration:
+        backupStorageLocation: []
+        volumeSnapshotLocation: []
+  links:
+    documentation: https://velero.io/docs
+    source: https://github.com/vmware-tanzu/velero
+    homepage: https://velero.io
+---
+# GitOps
+---
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: flux
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: gitops
+spec:
+  displayName: Flux CD
+  description: GitOps toolkit for continuous delivery with Kubernetes
+  category: gitops
+  icon: "🔄"
+  platform: false
+  chart:
+    repository: https://fluxcd-community.github.io/helm-charts
+    name: flux2
+    defaultVersion: "2.14.1"
+    availableVersions:
+      - "2.14.1"
+      - "2.13.0"
+      - "2.12.0"
+  defaults:
+    namespace: flux-system
+    releaseName: flux
+    createNamespace: true
+    timeout: "10m"
+  links:
+    documentation: https://fluxcd.io/docs
+    source: https://github.com/fluxcd/flux2
+    homepage: https://fluxcd.io
+---
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: argocd
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: gitops
+spec:
+  displayName: Argo CD
+  description: Declarative GitOps continuous delivery for Kubernetes
+  category: gitops
+  icon: "🐙"
+  platform: false
+  chart:
+    repository: https://argoproj.github.io/argo-helm
+    name: argo-cd
+    defaultVersion: "7.7.5"
+    availableVersions:
+      - "7.7.5"
+      - "7.6.0"
+      - "7.5.0"
+  defaults:
+    namespace: argocd
+    releaseName: argocd
+    createNamespace: true
+    timeout: "10m"
+    values:
+      server:
+        service:
+          type: LoadBalancer
+  links:
+    documentation: https://argo-cd.readthedocs.io
+    source: https://github.com/argoproj/argo-cd
+    homepage: https://argoproj.github.io

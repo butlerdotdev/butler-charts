@@ -10,30 +10,53 @@ metadata:
   labels:
     {{- include "butler-console.labels" . | nindent 4 }}
 rules:
-  # Core resources (read-only for console)
+  # Core resources - read for dashboard views
   - apiGroups: [""]
-    resources: ["secrets", "configmaps", "namespaces", "events"]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["namespaces", "events", "configmaps"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["secrets"]
     verbs: ["get", "list", "watch"]
   - apiGroups: [""]
     resources: ["pods", "pods/log"]
     verbs: ["get", "list", "watch"]
+  # Terminal access requires exec
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create"]
   
-  # Butler CRDs - read-only access for dashboard
+  # Butler CRDs - full access for management operations
   - apiGroups: ["butler.butlerlabs.dev"]
     resources: ["tenantclusters", "tenantaddons", "teams", "butlerconfigs", "providerconfigs"]
-    verbs: ["get", "list", "watch"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
   - apiGroups: ["butler.butlerlabs.dev"]
     resources: ["tenantclusters/status", "tenantaddons/status", "teams/status"]
     verbs: ["get"]
   
-  # Butler CRDs - write access for management operations
+  # ManagementAddon - full CRUD for management cluster addons
   - apiGroups: ["butler.butlerlabs.dev"]
-    resources: ["tenantclusters", "tenantaddons", "teams"]
-    verbs: ["create", "update", "patch", "delete"]
+    resources: ["managementaddons"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["managementaddons/status"]
+    verbs: ["get"]
   
-  # Cluster API resources (read-only for status)
+  # AddonDefinition - read for catalog display
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["addondefinitions"]
+    verbs: ["get", "list", "watch"]
+  
+  # Cluster API resources - read for status display
   - apiGroups: ["cluster.x-k8s.io"]
     resources: ["clusters", "machines", "machinedeployments"]
+    verbs: ["get", "list", "watch"]
+  
+  # Kamaji TenantControlPlane - read for status display
+  - apiGroups: ["kamaji.clastix.io"]
+    resources: ["tenantcontrolplanes"]
     verbs: ["get", "list", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1

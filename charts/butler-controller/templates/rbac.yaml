@@ -20,7 +20,7 @@ rules:
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
   - apiGroups: [""]
     resources: ["namespaces"]
-    verbs: ["get", "list", "watch", "create"]
+    verbs: ["get", "list", "watch", "create", "delete"]
   - apiGroups: ["rbac.authorization.k8s.io"]
     resources: ["roles", "rolebindings"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
@@ -50,6 +50,16 @@ rules:
     resources: ["tenantaddons/finalizers"]
     verbs: ["update"]
   
+   - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["managementaddons"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["managementaddons/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["managementaddons/finalizers"]
+    verbs: ["update"] 
+
   # Butler CRDs - Team
   - apiGroups: ["butler.butlerlabs.dev"]
     resources: ["teams"]
@@ -69,6 +79,10 @@ rules:
   # Butler CRDs - ProviderConfig (read-only)
   - apiGroups: ["butler.butlerlabs.dev"]
     resources: ["providerconfigs"]
+    verbs: ["get", "list", "watch"]
+
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["addondefinitions"]
     verbs: ["get", "list", "watch"]
   
   # Cluster API resources
@@ -92,6 +106,10 @@ rules:
   - apiGroups: ["kamaji.clastix.io"]
     resources: ["tenantcontrolplanes/status"]
     verbs: ["get", "watch"]
+
+  - apiGroups: ["bootstrap.cluster.x-k8s.io"]
+    resources: ["kubeadmconfigtemplates"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
   
   # Infrastructure providers (Harvester, Nutanix, Proxmox)
   - apiGroups: ["infrastructure.cluster.x-k8s.io"]

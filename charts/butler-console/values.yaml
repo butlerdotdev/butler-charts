@@ -16,7 +16,7 @@ server:
   
   image:
     # -- Server image repository
-    repository: ghcr.io/butlerdotdev/butler-console-server
+    repository: ghcr.io/butlerdotdev/butler-server
     # -- Image pull policy
     pullPolicy: IfNotPresent
     # -- Image tag (defaults to chart appVersion)
@@ -64,8 +64,6 @@ server:
     logLevel: info
     # -- Metrics bind address
     metricsBindAddress: ":9090"
-    # -- Health probe bind address
-    healthProbeBindAddress: ":8081"
   
   # Pod disruption budget
   podDisruptionBudget:
@@ -84,7 +82,7 @@ frontend:
   
   image:
     # -- Frontend image repository
-    repository: ghcr.io/butlerdotdev/butler-console-frontend
+    repository: ghcr.io/butlerdotdev/butler-console
     # -- Image pull policy
     pullPolicy: IfNotPresent
     # -- Image tag (defaults to chart appVersion)
@@ -97,18 +95,15 @@ frontend:
   podLabels: {}
   
   # -- Pod security context
+  # Note: nginx requires specific permissions. Using seccomp only.
   podSecurityContext:
-    runAsNonRoot: true
     seccompProfile:
       type: RuntimeDefault
   
   # -- Container security context
+  # Note: nginx needs write access to temp paths mounted as emptyDir
   securityContext:
     allowPrivilegeEscalation: false
-    capabilities:
-      drop:
-        - ALL
-    readOnlyRootFilesystem: true
   
   # -- Resource requests and limits
   resources:
@@ -123,7 +118,7 @@ frontend:
   service:
     # -- Service type
     type: ClusterIP
-    # -- HTTP port
+    # -- HTTP port (service port, nginx listens on 8080 internally)
     port: 80
   
   # Pod disruption budget
@@ -182,5 +177,6 @@ affinity: {}
 
 # -- Override the release name
 nameOverride: ""
+
 # -- Override the full release name
 fullnameOverride: ""

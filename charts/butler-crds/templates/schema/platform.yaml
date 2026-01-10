@@ -1,0 +1,203 @@
+# =============================================================================
+# Butler Built-in AddonDefinitions - Platform Addons
+# These are installed automatically during cluster bootstrap
+# =============================================================================
+---
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: cilium
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: cni
+spec:
+  displayName: Cilium
+  description: eBPF-based networking, security, and observability for Kubernetes
+  category: cni
+  icon: "🌐"
+  platform: true
+  chart:
+    repository: https://helm.cilium.io
+    name: cilium
+    defaultVersion: "1.16.5"
+    availableVersions:
+      - "1.16.5"
+      - "1.16.4"
+      - "1.15.11"
+  defaults:
+    namespace: kube-system
+    releaseName: cilium
+    createNamespace: false
+    timeout: "15m"
+    values:
+      hubble:
+        enabled: true
+        relay:
+          enabled: true
+        ui:
+          enabled: true
+  links:
+    documentation: https://docs.cilium.io
+    source: https://github.com/cilium/cilium
+    homepage: https://cilium.io
+---
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: metallb
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: loadbalancer
+spec:
+  displayName: MetalLB
+  description: Bare metal load balancer implementation for Kubernetes
+  category: loadbalancer
+  icon: "⚖️"
+  platform: true
+  dependsOn:
+    - cilium
+  chart:
+    repository: https://metallb.github.io/metallb
+    name: metallb
+    defaultVersion: "0.14.9"
+    availableVersions:
+      - "0.14.9"
+      - "0.14.8"
+  defaults:
+    namespace: metallb-system
+    releaseName: metallb
+    createNamespace: true
+    timeout: "10m"
+  links:
+    documentation: https://metallb.universe.tf
+    source: https://github.com/metallb/metallb
+---
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: cert-manager
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: certmanager
+spec:
+  displayName: cert-manager
+  description: X.509 certificate management and automation for Kubernetes
+  category: certmanager
+  icon: "🔐"
+  platform: true
+  chart:
+    repository: https://charts.jetstack.io
+    name: cert-manager
+    defaultVersion: "v1.16.2"
+    availableVersions:
+      - "v1.16.2"
+      - "v1.16.1"
+      - "v1.15.4"
+  defaults:
+    namespace: cert-manager
+    releaseName: cert-manager
+    createNamespace: true
+    timeout: "10m"
+    values:
+      crds:
+        enabled: true
+  links:
+    documentation: https://cert-manager.io/docs
+    source: https://github.com/cert-manager/cert-manager
+    homepage: https://cert-manager.io
+---
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: longhorn
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: storage
+spec:
+  displayName: Longhorn
+  description: Cloud-native distributed block storage for Kubernetes
+  category: storage
+  icon: "💾"
+  platform: true
+  chart:
+    repository: https://charts.longhorn.io
+    name: longhorn
+    defaultVersion: "1.7.2"
+    availableVersions:
+      - "1.7.2"
+      - "1.7.1"
+      - "1.6.3"
+  defaults:
+    namespace: longhorn-system
+    releaseName: longhorn
+    createNamespace: true
+    timeout: "15m"
+    values:
+      defaultSettings:
+        defaultReplicaCount: 2
+  links:
+    documentation: https://longhorn.io/docs
+    source: https://github.com/longhorn/longhorn
+    homepage: https://longhorn.io
+---
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: traefik
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: ingress
+spec:
+  displayName: Traefik
+  description: Cloud-native ingress controller and reverse proxy
+  category: ingress
+  icon: "🚪"
+  platform: true
+  dependsOn:
+    - metallb
+  chart:
+    repository: https://traefik.github.io/charts
+    name: traefik
+    defaultVersion: "32.1.1"
+    availableVersions:
+      - "32.1.1"
+      - "32.0.0"
+      - "31.1.1"
+  defaults:
+    namespace: traefik-system
+    releaseName: traefik
+    createNamespace: true
+    timeout: "10m"
+  links:
+    documentation: https://doc.traefik.io/traefik
+    source: https://github.com/traefik/traefik
+    homepage: https://traefik.io
+---
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: metrics-server
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
+spec:
+  displayName: Metrics Server
+  description: Cluster-wide aggregator of resource usage data for HPA and kubectl top
+  category: observability
+  icon: "📈"
+  platform: true
+  chart:
+    repository: https://kubernetes-sigs.github.io/metrics-server
+    name: metrics-server
+    defaultVersion: "3.12.2"
+    availableVersions:
+      - "3.12.2"
+      - "3.12.1"
+  defaults:
+    namespace: kube-system
+    releaseName: metrics-server
+    createNamespace: false
+    timeout: "5m"
+  links:
+    documentation: https://github.com/kubernetes-sigs/metrics-server#readme
+    source: https://github.com/kubernetes-sigs/metrics-server

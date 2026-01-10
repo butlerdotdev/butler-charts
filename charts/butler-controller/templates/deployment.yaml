@@ -102,14 +102,22 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.extraVolumeMounts }}
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: helm-cache
+              mountPath: /home/nonroot
+            {{- with .Values.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.extraVolumes }}
+            {{- end }}
       volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: helm-cache
+          emptyDir: {}
+        {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
