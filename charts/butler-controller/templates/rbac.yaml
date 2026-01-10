@@ -50,7 +50,7 @@ rules:
     resources: ["tenantaddons/finalizers"]
     verbs: ["update"]
   
-   - apiGroups: ["butler.butlerlabs.dev"]
+  - apiGroups: ["butler.butlerlabs.dev"]
     resources: ["managementaddons"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
   - apiGroups: ["butler.butlerlabs.dev"]
