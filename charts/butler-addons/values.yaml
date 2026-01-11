@@ -19,6 +19,8 @@ platform:
       enabled: true
     traefik:
       enabled: true
+    metricsServer:
+      enabled: true
     flux:
       enabled: true
 
