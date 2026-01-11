@@ -1,0 +1,683 @@
+# =============================================================================
+# Butler Built-in AddonDefinitions - Optional Addons
+# These can be installed by users after cluster creation
+# =============================================================================
+{{- if .Values.optional.enabled }}
+---
+# =============================================================================
+# Observability
+# =============================================================================
+{{- if .Values.optional.addons.prometheus.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: prometheus-operator
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: Prometheus Operator
+  description: Full monitoring stack with Prometheus, Alertmanager, and Grafana dashboards
+  category: observability
+  icon: "🔥"
+  platform: false
+  chart:
+    repository: https://prometheus-community.github.io/helm-charts
+    name: kube-prometheus-stack
+    defaultVersion: "65.8.1"
+    availableVersions:
+      - "65.8.1"
+      - "65.5.0"
+      - "64.0.0"
+  defaults:
+    namespace: monitoring
+    releaseName: prometheus
+    createNamespace: true
+    timeout: "15m"
+    values:
+      prometheus:
+        prometheusSpec:
+          retention: 15d
+          storageSpec:
+            volumeClaimTemplate:
+              spec:
+                accessModes: ["ReadWriteOnce"]
+                resources:
+                  requests:
+                    storage: 50Gi
+      grafana:
+        enabled: true
+        adminPassword: butler-admin
+      alertmanager:
+        enabled: true
+  links:
+    documentation: https://prometheus-operator.dev
+    source: https://github.com/prometheus-operator/prometheus-operator
+    homepage: https://prometheus.io
+---
+{{- end }}
+{{- if .Values.optional.addons.victoriaMetrics.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: victoria-metrics
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: Victoria Metrics
+  description: Fast, cost-effective, and scalable time-series database for metrics
+  category: observability
+  icon: "📊"
+  platform: false
+  chart:
+    repository: https://victoriametrics.github.io/helm-charts
+    name: victoria-metrics-k8s-stack
+    defaultVersion: "0.28.2"
+    availableVersions:
+      - "0.28.2"
+      - "0.27.0"
+  defaults:
+    namespace: monitoring
+    releaseName: victoria-metrics
+    createNamespace: true
+    timeout: "15m"
+  links:
+    documentation: https://docs.victoriametrics.com
+    source: https://github.com/VictoriaMetrics/VictoriaMetrics
+    homepage: https://victoriametrics.com
+---
+{{- end }}
+{{- if .Values.optional.addons.victoriaLogs.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: victoria-logs
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: Victoria Logs
+  description: High-performance log management and analysis solution
+  category: observability
+  icon: "📝"
+  platform: false
+  chart:
+    repository: https://victoriametrics.github.io/helm-charts
+    name: victoria-logs-single
+    defaultVersion: "0.8.13"
+    availableVersions:
+      - "0.8.13"
+      - "0.8.0"
+  defaults:
+    namespace: logging
+    releaseName: victoria-logs
+    createNamespace: true
+    timeout: "10m"
+  links:
+    documentation: https://docs.victoriametrics.com/victorialogs
+    source: https://github.com/VictoriaMetrics/VictoriaMetrics
+---
+{{- end }}
+{{- if .Values.optional.addons.loki.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: loki
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: logging
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: Grafana Loki
+  description: Horizontally-scalable, highly-available log aggregation system
+  category: logging
+  icon: "📋"
+  platform: false
+  chart:
+    repository: https://grafana.github.io/helm-charts
+    name: loki-stack
+    defaultVersion: "2.10.2"
+    availableVersions:
+      - "2.10.2"
+      - "2.10.1"
+  defaults:
+    namespace: logging
+    releaseName: loki
+    createNamespace: true
+    timeout: "10m"
+    values:
+      loki:
+        persistence:
+          enabled: true
+          size: 10Gi
+      promtail:
+        enabled: true
+  links:
+    documentation: https://grafana.com/docs/loki/latest
+    source: https://github.com/grafana/loki
+    homepage: https://grafana.com/oss/loki
+---
+{{- end }}
+{{- if .Values.optional.addons.tempo.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: tempo
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: Grafana Tempo
+  description: Distributed tracing backend for high-scale request flow analysis
+  category: observability
+  icon: "🔍"
+  platform: false
+  chart:
+    repository: https://grafana.github.io/helm-charts
+    name: tempo
+    defaultVersion: "1.10.3"
+    availableVersions:
+      - "1.10.3"
+      - "1.10.0"
+      - "1.9.0"
+  defaults:
+    namespace: tracing
+    releaseName: tempo
+    createNamespace: true
+    timeout: "10m"
+  links:
+    documentation: https://grafana.com/docs/tempo/latest
+    source: https://github.com/grafana/tempo
+    homepage: https://grafana.com/oss/tempo
+---
+{{- end }}
+{{- if .Values.optional.addons.jaeger.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: jaeger
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: Jaeger
+  description: End-to-end distributed tracing and service mesh observability
+  category: observability
+  icon: "🎯"
+  platform: false
+  chart:
+    repository: https://jaegertracing.github.io/helm-charts
+    name: jaeger
+    defaultVersion: "3.3.1"
+    availableVersions:
+      - "3.3.1"
+      - "3.2.0"
+  defaults:
+    namespace: tracing
+    releaseName: jaeger
+    createNamespace: true
+    timeout: "10m"
+  links:
+    documentation: https://www.jaegertracing.io/docs
+    source: https://github.com/jaegertracing/jaeger
+    homepage: https://www.jaegertracing.io
+---
+{{- end }}
+# =============================================================================
+# Backup & Recovery
+# =============================================================================
+{{- if .Values.optional.addons.velero.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: velero
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: backup
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: Velero
+  description: Backup, restore, and migrate Kubernetes resources and persistent volumes
+  category: backup
+  icon: "🛡️"
+  platform: false
+  chart:
+    repository: https://vmware-tanzu.github.io/helm-charts
+    name: velero
+    defaultVersion: "8.1.0"
+    availableVersions:
+      - "8.1.0"
+      - "7.2.1"
+      - "7.1.0"
+  defaults:
+    namespace: velero
+    releaseName: velero
+    createNamespace: true
+    timeout: "10m"
+    values:
+      configuration:
+        backupStorageLocation: []
+        volumeSnapshotLocation: []
+  links:
+    documentation: https://velero.io/docs
+    source: https://github.com/vmware-tanzu/velero
+    homepage: https://velero.io
+---
+{{- end }}
+# =============================================================================
+# GitOps
+# =============================================================================
+{{- if .Values.optional.addons.flux.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: flux
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: gitops
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: Flux CD
+  description: GitOps toolkit for continuous delivery with Kubernetes
+  category: gitops
+  icon: "🔄"
+  platform: false
+  chart:
+    repository: https://fluxcd-community.github.io/helm-charts
+    name: flux2
+    defaultVersion: "2.14.1"
+    availableVersions:
+      - "2.14.1"
+      - "2.13.0"
+      - "2.12.0"
+  defaults:
+    namespace: flux-system
+    releaseName: flux
+    createNamespace: true
+    timeout: "10m"
+  links:
+    documentation: https://fluxcd.io/docs
+    source: https://github.com/fluxcd/flux2
+    homepage: https://fluxcd.io
+---
+{{- end }}
+{{- if .Values.optional.addons.argocd.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: argocd
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: gitops
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: Argo CD
+  description: Declarative GitOps continuous delivery for Kubernetes
+  category: gitops
+  icon: "🐙"
+  platform: false
+  chart:
+    repository: https://argoproj.github.io/argo-helm
+    name: argo-cd
+    defaultVersion: "7.7.5"
+    availableVersions:
+      - "7.7.5"
+      - "7.6.0"
+      - "7.5.0"
+  defaults:
+    namespace: argocd
+    releaseName: argocd
+    createNamespace: true
+    timeout: "10m"
+    values:
+      server:
+        service:
+          type: LoadBalancer
+  links:
+    documentation: https://argo-cd.readthedocs.io
+    source: https://github.com/argoproj/argo-cd
+    homepage: https://argoproj.github.io
+---
+{{- end }}
+# =============================================================================
+# Secrets Management
+# =============================================================================
+{{- if .Values.optional.addons.externalSecrets.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: external-secrets
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: secrets
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: External Secrets Operator
+  description: Synchronize secrets from external APIs into Kubernetes
+  category: secrets
+  icon: "🔑"
+  platform: false
+  chart:
+    repository: https://charts.external-secrets.io
+    name: external-secrets
+    defaultVersion: "0.12.1"
+    availableVersions:
+      - "0.12.1"
+      - "0.11.0"
+      - "0.10.0"
+  defaults:
+    namespace: external-secrets
+    releaseName: external-secrets
+    createNamespace: true
+    timeout: "10m"
+    values:
+      installCRDs: true
+  links:
+    documentation: https://external-secrets.io
+    source: https://github.com/external-secrets/external-secrets
+    homepage: https://external-secrets.io
+---
+{{- end }}
+{{- if .Values.optional.addons.sealedSecrets.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: sealed-secrets
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: secrets
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: Sealed Secrets
+  description: Encrypt secrets for safe storage in Git
+  category: secrets
+  icon: "🔒"
+  platform: false
+  chart:
+    repository: https://bitnami-labs.github.io/sealed-secrets
+    name: sealed-secrets
+    defaultVersion: "2.16.2"
+    availableVersions:
+      - "2.16.2"
+      - "2.15.0"
+  defaults:
+    namespace: flux-system
+    releaseName: sealed-secrets
+    createNamespace: false
+    timeout: "10m"
+  links:
+    documentation: https://sealed-secrets.netlify.app
+    source: https://github.com/bitnami-labs/sealed-secrets
+---
+{{- end }}
+# =============================================================================
+# DNS & Networking
+# =============================================================================
+{{- if .Values.optional.addons.externalDns.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: external-dns
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: dns
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: ExternalDNS
+  description: Synchronize exposed Kubernetes Services and Ingresses with DNS providers
+  category: dns
+  icon: "🌍"
+  platform: false
+  chart:
+    repository: https://kubernetes-sigs.github.io/external-dns
+    name: external-dns
+    defaultVersion: "1.15.0"
+    availableVersions:
+      - "1.15.0"
+      - "1.14.0"
+  defaults:
+    namespace: external-dns
+    releaseName: external-dns
+    createNamespace: true
+    timeout: "10m"
+    values:
+      provider: cloudflare
+      policy: sync
+  links:
+    documentation: https://kubernetes-sigs.github.io/external-dns
+    source: https://github.com/kubernetes-sigs/external-dns
+---
+{{- end }}
+# =============================================================================
+# Service Mesh
+# =============================================================================
+{{- if .Values.optional.addons.istio.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: istio
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: service-mesh
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: Istio
+  description: Service mesh for observability, security, and traffic management
+  category: service-mesh
+  icon: "🕸️"
+  platform: false
+  chart:
+    repository: https://istio-release.storage.googleapis.com/charts
+    name: istiod
+    defaultVersion: "1.24.2"
+    availableVersions:
+      - "1.24.2"
+      - "1.23.0"
+      - "1.22.0"
+  defaults:
+    namespace: istio-system
+    releaseName: istiod
+    createNamespace: true
+    timeout: "15m"
+  links:
+    documentation: https://istio.io/latest/docs
+    source: https://github.com/istio/istio
+    homepage: https://istio.io
+---
+{{- end }}
+{{- if .Values.optional.addons.linkerd.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: linkerd
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: service-mesh
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: Linkerd
+  description: Ultralight, security-first service mesh for Kubernetes
+  category: service-mesh
+  icon: "🔗"
+  platform: false
+  chart:
+    repository: https://helm.linkerd.io/stable
+    name: linkerd-control-plane
+    defaultVersion: "1.18.0"
+    availableVersions:
+      - "1.18.0"
+      - "1.17.0"
+  defaults:
+    namespace: linkerd
+    releaseName: linkerd
+    createNamespace: true
+    timeout: "10m"
+  links:
+    documentation: https://linkerd.io/2/overview
+    source: https://github.com/linkerd/linkerd2
+    homepage: https://linkerd.io
+---
+{{- end }}
+# =============================================================================
+# Databases
+# =============================================================================
+{{- if .Values.optional.addons.cnpg.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: cnpg
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: database
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: CloudNativePG
+  description: PostgreSQL operator for Kubernetes with high availability
+  category: database
+  icon: "🐘"
+  platform: false
+  chart:
+    repository: https://cloudnative-pg.github.io/charts
+    name: cloudnative-pg
+    defaultVersion: "0.22.1"
+    availableVersions:
+      - "0.22.1"
+      - "0.21.0"
+  defaults:
+    namespace: cnpg-system
+    releaseName: cnpg
+    createNamespace: true
+    timeout: "10m"
+    values:
+      crds:
+        create: true
+  links:
+    documentation: https://cloudnative-pg.io/documentation
+    source: https://github.com/cloudnative-pg/cloudnative-pg
+    homepage: https://cloudnative-pg.io
+---
+{{- end }}
+{{- if .Values.optional.addons.redis.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: redis
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: database
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: Redis
+  description: In-memory data structure store for caching and messaging
+  category: database
+  icon: "🔴"
+  platform: false
+  chart:
+    repository: https://charts.bitnami.com/bitnami
+    name: redis
+    defaultVersion: "20.6.0"
+    availableVersions:
+      - "20.6.0"
+      - "20.5.0"
+      - "19.0.0"
+  defaults:
+    namespace: redis
+    releaseName: redis
+    createNamespace: true
+    timeout: "10m"
+    values:
+      architecture: standalone
+      auth:
+        enabled: true
+  links:
+    documentation: https://redis.io/documentation
+    source: https://github.com/redis/redis
+    homepage: https://redis.io
+---
+{{- end }}
+# =============================================================================
+# Messaging
+# =============================================================================
+{{- if .Values.optional.addons.nats.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: nats
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: messaging
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: NATS
+  description: High-performance messaging system for cloud native applications
+  category: messaging
+  icon: "📬"
+  platform: false
+  chart:
+    repository: https://nats-io.github.io/k8s/helm/charts
+    name: nats
+    defaultVersion: "1.2.7"
+    availableVersions:
+      - "1.2.7"
+      - "1.2.0"
+  defaults:
+    namespace: nats
+    releaseName: nats
+    createNamespace: true
+    timeout: "10m"
+    values:
+      nats:
+        jetstream:
+          enabled: true
+  links:
+    documentation: https://docs.nats.io
+    source: https://github.com/nats-io/nats-server
+    homepage: https://nats.io
+---
+{{- end }}
+{{- if .Values.optional.addons.rabbitmq.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: rabbitmq
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: messaging
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: RabbitMQ
+  description: Open-source message broker for reliable messaging
+  category: messaging
+  icon: "🐰"
+  platform: false
+  chart:
+    repository: https://charts.bitnami.com/bitnami
+    name: rabbitmq
+    defaultVersion: "15.1.3"
+    availableVersions:
+      - "15.1.3"
+      - "15.0.0"
+      - "14.0.0"
+  defaults:
+    namespace: rabbitmq
+    releaseName: rabbitmq
+    createNamespace: true
+    timeout: "10m"
+    values:
+      auth:
+        username: admin
+      persistence:
+        enabled: true
+        size: 8Gi
+  links:
+    documentation: https://www.rabbitmq.com/documentation.html
+    source: https://github.com/rabbitmq/rabbitmq-server
+    homepage: https://www.rabbitmq.com
+{{- end }}
+{{- end }}

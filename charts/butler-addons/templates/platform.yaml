@@ -2,7 +2,9 @@
 # Butler Built-in AddonDefinitions - Platform Addons
 # These are installed automatically during cluster bootstrap
 # =============================================================================
+{{- if .Values.platform.enabled }}
 ---
+{{- if .Values.platform.addons.cilium.enabled }}
 apiVersion: butler.butlerlabs.dev/v1alpha1
 kind: AddonDefinition
 metadata:
@@ -10,6 +12,7 @@ metadata:
   labels:
     butler.butlerlabs.dev/source: builtin
     butler.butlerlabs.dev/category: cni
+    {{- include "butler-addons.labels" . | nindent 4 }}
 spec:
   displayName: Cilium
   description: eBPF-based networking, security, and observability for Kubernetes
@@ -19,8 +22,9 @@ spec:
   chart:
     repository: https://helm.cilium.io
     name: cilium
-    defaultVersion: "1.16.5"
+    defaultVersion: "1.17.0"
     availableVersions:
+      - "1.17.0"
       - "1.16.5"
       - "1.16.4"
       - "1.15.11"
@@ -36,11 +40,40 @@ spec:
           enabled: true
         ui:
           enabled: true
+      ipam:
+        mode: kubernetes
+      kubeProxyReplacement: true
+      securityContext:
+        capabilities:
+          ciliumAgent:
+            - CHOWN
+            - KILL
+            - NET_ADMIN
+            - NET_RAW
+            - IPC_LOCK
+            - SYS_ADMIN
+            - SYS_RESOURCE
+            - DAC_OVERRIDE
+            - FOWNER
+            - SETGID
+            - SETUID
+          cleanCiliumState:
+            - NET_ADMIN
+            - SYS_ADMIN
+            - SYS_RESOURCE
+      cgroup:
+        autoMount:
+          enabled: false
+        hostRoot: /sys/fs/cgroup
+      k8sServiceHost: localhost
+      k8sServicePort: 7445
   links:
     documentation: https://docs.cilium.io
     source: https://github.com/cilium/cilium
     homepage: https://cilium.io
 ---
+{{- end }}
+{{- if .Values.platform.addons.metallb.enabled }}
 apiVersion: butler.butlerlabs.dev/v1alpha1
 kind: AddonDefinition
 metadata:
@@ -48,6 +81,7 @@ metadata:
   labels:
     butler.butlerlabs.dev/source: builtin
     butler.butlerlabs.dev/category: loadbalancer
+    {{- include "butler-addons.labels" . | nindent 4 }}
 spec:
   displayName: MetalLB
   description: Bare metal load balancer implementation for Kubernetes
@@ -72,6 +106,8 @@ spec:
     documentation: https://metallb.universe.tf
     source: https://github.com/metallb/metallb
 ---
+{{- end }}
+{{- if .Values.platform.addons.certManager.enabled }}
 apiVersion: butler.butlerlabs.dev/v1alpha1
 kind: AddonDefinition
 metadata:
@@ -79,6 +115,7 @@ metadata:
   labels:
     butler.butlerlabs.dev/source: builtin
     butler.butlerlabs.dev/category: certmanager
+    {{- include "butler-addons.labels" . | nindent 4 }}
 spec:
   displayName: cert-manager
   description: X.509 certificate management and automation for Kubernetes
@@ -106,6 +143,8 @@ spec:
     source: https://github.com/cert-manager/cert-manager
     homepage: https://cert-manager.io
 ---
+{{- end }}
+{{- if .Values.platform.addons.longhorn.enabled }}
 apiVersion: butler.butlerlabs.dev/v1alpha1
 kind: AddonDefinition
 metadata:
@@ -113,6 +152,7 @@ metadata:
   labels:
     butler.butlerlabs.dev/source: builtin
     butler.butlerlabs.dev/category: storage
+    {{- include "butler-addons.labels" . | nindent 4 }}
 spec:
   displayName: Longhorn
   description: Cloud-native distributed block storage for Kubernetes
@@ -140,6 +180,8 @@ spec:
     source: https://github.com/longhorn/longhorn
     homepage: https://longhorn.io
 ---
+{{- end }}
+{{- if .Values.platform.addons.traefik.enabled }}
 apiVersion: butler.butlerlabs.dev/v1alpha1
 kind: AddonDefinition
 metadata:
@@ -147,6 +189,7 @@ metadata:
   labels:
     butler.butlerlabs.dev/source: builtin
     butler.butlerlabs.dev/category: ingress
+    {{- include "butler-addons.labels" . | nindent 4 }}
 spec:
   displayName: Traefik
   description: Cloud-native ingress controller and reverse proxy
@@ -158,13 +201,13 @@ spec:
   chart:
     repository: https://traefik.github.io/charts
     name: traefik
-    defaultVersion: "32.1.1"
+    defaultVersion: "34.3.0"
     availableVersions:
+      - "34.3.0"
       - "32.1.1"
       - "32.0.0"
-      - "31.1.1"
   defaults:
-    namespace: traefik-system
+    namespace: traefik
     releaseName: traefik
     createNamespace: true
     timeout: "10m"
@@ -173,6 +216,8 @@ spec:
     source: https://github.com/traefik/traefik
     homepage: https://traefik.io
 ---
+{{- end }}
+{{- if .Values.platform.addons.metricsServer.enabled }}
 apiVersion: butler.butlerlabs.dev/v1alpha1
 kind: AddonDefinition
 metadata:
@@ -180,6 +225,7 @@ metadata:
   labels:
     butler.butlerlabs.dev/source: builtin
     butler.butlerlabs.dev/category: observability
+    {{- include "butler-addons.labels" . | nindent 4 }}
 spec:
   displayName: Metrics Server
   description: Cluster-wide aggregator of resource usage data for HPA and kubectl top
@@ -201,3 +247,5 @@ spec:
   links:
     documentation: https://github.com/kubernetes-sigs/metrics-server#readme
     source: https://github.com/kubernetes-sigs/metrics-server
+{{- end }}
+{{- end }}

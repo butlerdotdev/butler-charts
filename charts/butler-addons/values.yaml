@@ -1,0 +1,82 @@
+# Butler Addon Definitions Configuration
+# =======================================
+# Controls which addon categories are installed in the catalog
+
+# Platform addons - core infrastructure components
+# These are essential for cluster operation
+platform:
+  enabled: true
+  
+  # Individual platform addons can be disabled
+  addons:
+    cilium:
+      enabled: true
+    longhorn:
+      enabled: true
+    metallb:
+      enabled: true
+    certManager:
+      enabled: true
+    traefik:
+      enabled: true
+    flux:
+      enabled: true
+
+# Optional addons - observability, security, and utilities
+# These enhance cluster capabilities but aren't required
+optional:
+  enabled: true
+  
+  # Individual optional addons can be disabled
+  addons:
+    # Observability
+    prometheus:
+      enabled: true
+    grafana:
+      enabled: true
+    victoriaMetrics:
+      enabled: true
+    
+    # Logging
+    loki:
+      enabled: true
+    victoriaLogs:
+      enabled: true
+
+    # Tracing
+    tempo:
+      enabled: true
+    jaeger:
+      enabled: true
+    
+    # Backup
+    velero:
+      enabled: true
+    
+    # DNS
+    externalDns:
+      enabled: true
+    
+    # Security
+    externalSecrets:
+      enabled: true
+    sealedSecrets:
+      enabled: true
+    
+    # Service Mesh
+    istio:
+      enabled: true
+    linkerd:
+      enabled: true
+    
+    # Database
+    cnpg:
+      enabled: true
+    redis:
+      enabled: true
+    
+    # Messaging
+    nats:
+      enabled: true
+    rabbitmq:
+      enabled: true

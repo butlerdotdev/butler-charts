@@ -1,0 +1,95 @@
+Butler Addon Definitions installed successfully!
+The following addon categories are now available:
+{{- if .Values.platform.enabled }}
+PLATFORM ADDONS (Core Infrastructure):
+  {{- if .Values.platform.addons.cilium.enabled }}
+  - cilium          CNI and network policy
+  {{- end }}
+  {{- if .Values.platform.addons.metallb.enabled }}
+  - metallb         Bare metal load balancer
+  {{- end }}
+  {{- if .Values.platform.addons.certManager.enabled }}
+  - cert-manager    Certificate management
+  {{- end }}
+  {{- if .Values.platform.addons.longhorn.enabled }}
+  - longhorn        Distributed block storage
+  {{- end }}
+  {{- if .Values.platform.addons.traefik.enabled }}
+  - traefik         Ingress controller
+  {{- end }}
+  {{- if .Values.platform.addons.metricsServer.enabled }}
+  - metrics-server  Resource metrics for HPA
+  {{- end }}
+{{- end }}
+{{- if .Values.optional.enabled }}
+OPTIONAL ADDONS (Observability & Utilities):
+  {{- if .Values.optional.addons.prometheus.enabled }}
+  - prometheus-operator   Full monitoring stack
+  {{- end }}
+  {{- if .Values.optional.addons.victoriaMetrics.enabled }}
+  - victoria-metrics      Time-series database
+  {{- end }}
+  {{- if .Values.optional.addons.victoriaLogs.enabled }}
+  - victoria-logs         Log management
+  {{- end }}
+  {{- if .Values.optional.addons.loki.enabled }}
+  - loki                  Log aggregation
+  {{- end }}
+  {{- if .Values.optional.addons.tempo.enabled }}
+  - tempo                 Distributed tracing
+  {{- end }}
+  {{- if .Values.optional.addons.jaeger.enabled }}
+  - jaeger                Distributed tracing
+  {{- end }}
+  {{- if .Values.optional.addons.velero.enabled }}
+  - velero                Backup and restore
+  {{- end }}
+  {{- if .Values.optional.addons.flux.enabled }}
+  - flux                  GitOps toolkit
+  {{- end }}
+  {{- if .Values.optional.addons.argocd.enabled }}
+  - argocd                GitOps CD
+  {{- end }}
+  {{- if .Values.optional.addons.externalSecrets.enabled }}
+  - external-secrets      External secrets sync
+  {{- end }}
+  {{- if .Values.optional.addons.sealedSecrets.enabled }}
+  - sealed-secrets        GitOps-friendly secrets
+  {{- end }}
+  {{- if .Values.optional.addons.externalDns.enabled }}
+  - external-dns          DNS synchronization
+  {{- end }}
+  {{- if .Values.optional.addons.istio.enabled }}
+  - istio                 Service mesh
+  {{- end }}
+  {{- if .Values.optional.addons.linkerd.enabled }}
+  - linkerd               Service mesh
+  {{- end }}
+  {{- if .Values.optional.addons.cnpg.enabled }}
+  - cnpg                  PostgreSQL operator
+  {{- end }}
+  {{- if .Values.optional.addons.redis.enabled }}
+  - redis                 In-memory cache
+  {{- end }}
+  {{- if .Values.optional.addons.nats.enabled }}
+  - nats                  Messaging system
+  {{- end }}
+  {{- if .Values.optional.addons.rabbitmq.enabled }}
+  - rabbitmq              Message broker
+  {{- end }}
+{{- end }}
+To view all available addons:
+  kubectl get addondefinitions
+To install an addon on a tenant cluster, create a TenantAddon:
+  kubectl apply -f - <<EOF
+  apiVersion: butler.butlerlabs.dev/v1alpha1
+  kind: TenantAddon
+  metadata:
+    name: prometheus
+    namespace: butler-tenants
+  spec:
+    clusterRef:
+      name: my-cluster
+    addon: prometheus-operator
+  EOF
+For more information, visit: https://github.com/butlerdotdev/butler

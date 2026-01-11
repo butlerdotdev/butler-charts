@@ -1,0 +1,26 @@
+apiVersion: v2
+name: butler-addons
+description: Butler addon definitions catalog - predefined addons for tenant and management clusters
+type: application
+version: 0.1.0
+appVersion: "v1alpha1"
+
+keywords:
+  - butler
+  - addons
+  - catalog
+  - kubernetes
+  - platform-engineering
+
+home: https://github.com/butlerdotdev/butler
+sources:
+  - https://github.com/butlerdotdev/butler-charts
+  - https://github.com/butlerdotdev/butler-api
+
+maintainers:
+  - name: Butler Authors
+    url: https://github.com/butlerdotdev
+
+annotations:
+  category: platform
+  licenses: Apache-2.0
