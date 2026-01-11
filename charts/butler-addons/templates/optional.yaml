@@ -134,7 +134,7 @@ metadata:
 spec:
   displayName: Grafana Loki
   description: Horizontally-scalable, highly-available log aggregation system
-  category: logging
+  category: observability
   icon: "📋"
   platform: false
   chart:
@@ -360,7 +360,7 @@ metadata:
 spec:
   displayName: External Secrets Operator
   description: Synchronize secrets from external APIs into Kubernetes
-  category: secrets
+  category: security
   icon: "🔑"
   platform: false
   chart:
@@ -396,7 +396,7 @@ metadata:
 spec:
   displayName: Sealed Secrets
   description: Encrypt secrets for safe storage in Git
-  category: secrets
+  category: security
   icon: "🔒"
   platform: false
   chart:
@@ -469,7 +469,7 @@ metadata:
 spec:
   displayName: Istio
   description: Service mesh for observability, security, and traffic management
-  category: service-mesh
+  category: other
   icon: "🕸️"
   platform: false
   chart:
@@ -503,7 +503,7 @@ metadata:
 spec:
   displayName: Linkerd
   description: Ultralight, security-first service mesh for Kubernetes
-  category: service-mesh
+  category: other
   icon: "🔗"
   platform: false
   chart:
@@ -539,7 +539,7 @@ metadata:
 spec:
   displayName: CloudNativePG
   description: PostgreSQL operator for Kubernetes with high availability
-  category: database
+  category: other
   icon: "🐘"
   platform: false
   chart:
@@ -575,7 +575,7 @@ metadata:
 spec:
   displayName: Redis
   description: In-memory data structure store for caching and messaging
-  category: database
+  category: other
   icon: "🔴"
   platform: false
   chart:
@@ -616,7 +616,7 @@ metadata:
 spec:
   displayName: NATS
   description: High-performance messaging system for cloud native applications
-  category: messaging
+  category: other
   icon: "📬"
   platform: false
   chart:
@@ -653,7 +653,7 @@ metadata:
 spec:
   displayName: RabbitMQ
   description: Open-source message broker for reliable messaging
-  category: messaging
+  category: other
   icon: "🐰"
   platform: false
   chart:
