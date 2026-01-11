@@ -431,7 +431,7 @@ metadata:
 spec:
   displayName: ExternalDNS
   description: Synchronize exposed Kubernetes Services and Ingresses with DNS providers
-  category: dns
+  category: other
   icon: "🌍"
   platform: false
   chart:
