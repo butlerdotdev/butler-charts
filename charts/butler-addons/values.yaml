@@ -82,3 +82,9 @@ optional:
       enabled: true
     rabbitmq:
       enabled: true
+
+    # GitOps
+    flux:
+      enabled: true
+    argocd:
+      enabled: true
