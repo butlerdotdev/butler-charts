@@ -24,6 +24,9 @@ crds:
   # -- Install ButlerConfig CRD (platform configuration)
   butlerConfig: true
 
+  addonDefinition: true
+  identityProvider: true
+  managementAddon: true
   # -- Install user CRD
   user: true
 

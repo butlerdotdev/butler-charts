@@ -18,13 +18,16 @@ fi
 echo "Syncing CRDs from: $CRD_SOURCE"
 
 declare -a CRD_MAPPINGS=(
-    "butler.butlerlabs.dev_clusterbootstraps.yaml:clusterBootstrap:clusterbootstrap-crd.yaml"
-    "butler.butlerlabs.dev_machinerequests.yaml:machineRequest:machinerequest-crd.yaml"
-    "butler.butlerlabs.dev_providerconfigs.yaml:providerConfig:providerconfig-crd.yaml"
-    "butler.butlerlabs.dev_tenantclusters.yaml:tenantCluster:tenantcluster-crd.yaml"
-    "butler.butlerlabs.dev_tenantaddons.yaml:tenantAddon:tenantaddon-crd.yaml"
-    "butler.butlerlabs.dev_teams.yaml:team:team-crd.yaml"
+    "butler.butlerlabs.dev_addondefinitions.yaml:addonDefinition:addondefinition-crd.yaml"
     "butler.butlerlabs.dev_butlerconfigs.yaml:butlerConfig:butlerconfig-crd.yaml"
+    "butler.butlerlabs.dev_clusterbootstraps.yaml:clusterBootstrap:clusterbootstrap-crd.yaml"
+    "butler.butlerlabs.dev_identityproviders.yaml:identityProvider:identityprovider-crd.yaml"
+    "butler.butlerlabs.dev_machinerequests.yaml:machineRequest:machinerequest-crd.yaml"
+    "butler.butlerlabs.dev_managementaddons.yaml:managementAddon:managementaddon-crd.yaml"
+    "butler.butlerlabs.dev_providerconfigs.yaml:providerConfig:providerconfig-crd.yaml"
+    "butler.butlerlabs.dev_teams.yaml:team:team-crd.yaml"
+    "butler.butlerlabs.dev_tenantaddons.yaml:tenantAddon:tenantaddon-crd.yaml"
+    "butler.butlerlabs.dev_tenantclusters.yaml:tenantCluster:tenantcluster-crd.yaml"
     "butler.butlerlabs.dev_users.yaml:user:user-crd.yaml"
 )
 
