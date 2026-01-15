@@ -25,6 +25,7 @@ declare -a CRD_MAPPINGS=(
     "butler.butlerlabs.dev_tenantaddons.yaml:tenantAddon:tenantaddon-crd.yaml"
     "butler.butlerlabs.dev_teams.yaml:team:team-crd.yaml"
     "butler.butlerlabs.dev_butlerconfigs.yaml:butlerConfig:butlerconfig-crd.yaml"
+    "butler.butlerlabs.dev_users.yaml:user:user-crd.yaml"
 )
 
 synced=0

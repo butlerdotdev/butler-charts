@@ -24,6 +24,9 @@ crds:
   # -- Install ButlerConfig CRD (platform configuration)
   butlerConfig: true
 
+  # -- Install user CRD
+  user: true
+
 # -- Keep CRDs on chart uninstall (recommended for production)
 # Setting this to true adds the "helm.sh/resource-policy: keep" annotation
 keep: true
