@@ -1,146 +1,213 @@
 {{/*
-Copyright 2026 The Butler Authors.
-SPDX-License-Identifier: Apache-2.0
+AUTO-GENERATED FROM butler-api - DO NOT EDIT
+Source: config/crd/bases/butler.butlerlabs.dev_managementaddons.yaml
 */}}
+{{- if .Values.crds.managementAddon }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: managementaddons.butler.butlerlabs.dev
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.19.0
+    {{- include "butler-crds.annotations" . | nindent 4 }}
   labels:
     {{- include "butler-crds.labels" . | nindent 4 }}
-  annotations:
-    controller-gen.kubebuilder.io/version: v0.17.2
-    {{- with .Values.annotations }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
+  name: managementaddons.butler.butlerlabs.dev
 spec:
   group: butler.butlerlabs.dev
   names:
     kind: ManagementAddon
     listKind: ManagementAddonList
     plural: managementaddons
-    singular: managementaddon
     shortNames:
-      - ma
-      - maddon
+    - ma
+    - maddon
+    singular: managementaddon
   scope: Cluster
   versions:
-    - name: v1alpha1
-      served: true
-      storage: true
-      subresources:
-        status: {}
-      additionalPrinterColumns:
-        - name: Addon
-          type: string
-          jsonPath: .spec.addon
-          description: Addon name
-        - name: Version
-          type: string
-          jsonPath: .spec.version
-          description: Requested version
-        - name: Phase
-          type: string
-          jsonPath: .status.phase
-          description: Current phase
-        - name: Installed
-          type: string
-          jsonPath: .status.installedVersion
-          description: Installed version
-        - name: Age
-          type: date
-          jsonPath: .metadata.creationTimestamp
-      schema:
-        openAPIV3Schema:
-          type: object
-          description: ManagementAddon is the Schema for the managementaddons API. It represents an addon to be installed on the management cluster.
-          properties:
-            apiVersion:
-              type: string
-              description: API version
-            kind:
-              type: string
-              description: Kind
-            metadata:
-              type: object
-            spec:
-              type: object
-              description: ManagementAddonSpec defines the desired state of ManagementAddon
-              required:
-                - addon
-              properties:
-                addon:
-                  type: string
-                  description: Addon is the name of the addon to install (must match an AddonDefinition)
-                  minLength: 1
-                version:
-                  type: string
-                  description: Version is the specific version to install. If not specified, uses the default version from the AddonDefinition.
-                values:
-                  type: object
-                  description: Values are the Helm values to use for installation.
-                  x-kubernetes-preserve-unknown-fields: true
-                paused:
-                  type: boolean
-                  description: Paused indicates whether reconciliation of this addon is paused.
-            status:
-              type: object
-              description: ManagementAddonStatus defines the observed state of ManagementAddon
-              properties:
-                phase:
-                  type: string
-                  description: Phase represents the current phase of the addon installation
-                  enum:
-                    - Pending
-                    - Installing
-                    - Installed
-                    - Upgrading
-                    - Failed
-                    - Uninstalling
-                installedVersion:
-                  type: string
-                  description: InstalledVersion is the currently installed version of the addon
-                helmRelease:
-                  type: object
-                  description: HelmRelease contains information about the Helm release
+  - additionalPrinterColumns:
+    - description: Addon name
+      jsonPath: .spec.addon
+      name: Addon
+      type: string
+    - description: Requested version
+      jsonPath: .spec.version
+      name: Version
+      type: string
+    - description: Current phase
+      jsonPath: .status.phase
+      name: Phase
+      type: string
+    - description: Installed version
+      jsonPath: .status.installedVersion
+      name: Installed
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: |-
+          ManagementAddon is the Schema for the managementaddons API.
+          It represents an addon to be installed on the management cluster.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ManagementAddonSpec defines the desired state of ManagementAddon
+            properties:
+              addon:
+                description: Addon is the name of the addon to install (must match
+                  an AddonDefinition)
+                minLength: 1
+                type: string
+              paused:
+                description: |-
+                  Paused indicates whether reconciliation of this addon is paused.
+                  When paused, the controller will not make any changes to the addon.
+                type: boolean
+              values:
+                description: |-
+                  Values are the Helm values to use for installation.
+                  These are merged with any default values from the AddonDefinition.
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              version:
+                description: |-
+                  Version is the specific version to install. If not specified, uses the
+                  default version from the AddonDefinition.
+                type: string
+            required:
+            - addon
+            type: object
+          status:
+            description: ManagementAddonStatus defines the observed state of ManagementAddon
+            properties:
+              conditions:
+                description: Conditions represent the latest available observations
+                  of the addon's state
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
                   properties:
-                    name:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
                       type: string
-                      description: Name of the Helm release
-                    namespace:
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
                       type: string
-                      description: Namespace where the release is installed
-                    version:
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
                       type: integer
-                      description: Revision number of the release
-                message:
-                  type: string
-                  description: Message provides additional information about the current state
-                lastAttemptedVersion:
-                  type: string
-                  description: LastAttemptedVersion is the version that was last attempted to install
-                conditions:
-                  type: array
-                  description: Conditions represent the latest available observations
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                      status:
-                        type: string
-                      lastTransitionTime:
-                        type: string
-                        format: date-time
-                      reason:
-                        type: string
-                      message:
-                        type: string
-                    required:
-                      - type
-                      - status
-                observedGeneration:
-                  type: integer
-                  format: int64
-                  description: ObservedGeneration is the last observed generation
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              helmRelease:
+                description: HelmRelease contains information about the Helm release
+                properties:
+                  name:
+                    description: Name is the name of the Helm release
+                    type: string
+                  namespace:
+                    description: Namespace is the namespace where the release is installed
+                    type: string
+                  revision:
+                    description: Revision is the Helm release revision number
+                    type: integer
+                  status:
+                    description: Status is the Helm release status (deployed, failed,
+                      etc.)
+                    type: string
+                  version:
+                    description: Version is the chart version
+                    type: string
+                type: object
+              installedVersion:
+                description: InstalledVersion is the currently installed version of
+                  the addon
+                type: string
+              lastAttemptedVersion:
+                description: LastAttemptedVersion is the version that was last attempted
+                  to install
+                type: string
+              message:
+                description: Message provides additional information about the current
+                  state
+                type: string
+              observedGeneration:
+                description: ObservedGeneration is the last observed generation of
+                  the ManagementAddon
+                format: int64
+                type: integer
+              phase:
+                description: Phase represents the current phase of the addon installation
+                enum:
+                - Pending
+                - Installing
+                - Installed
+                - Upgrading
+                - Failed
+                - Uninstalling
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+{{- end }}

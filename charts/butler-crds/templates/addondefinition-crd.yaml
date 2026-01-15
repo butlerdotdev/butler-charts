@@ -1,9 +1,17 @@
+{{/*
+AUTO-GENERATED FROM butler-api - DO NOT EDIT
+Source: config/crd/bases/butler.butlerlabs.dev_addondefinitions.yaml
+*/}}
+{{- if .Values.crds.addonDefinition }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.19.0
+    {{- include "butler-crds.annotations" . | nindent 4 }}
+  labels:
+    {{- include "butler-crds.labels" . | nindent 4 }}
   name: addondefinitions.butler.butlerlabs.dev
 spec:
   group: butler.butlerlabs.dev
@@ -210,3 +218,4 @@ spec:
     served: true
     storage: true
     subresources: {}
+{{- end }}
