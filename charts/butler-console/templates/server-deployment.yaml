@@ -88,14 +88,20 @@ spec:
             - name: BUTLER_SECURE_COOKIES
               value: {{ .Values.server.auth.secureCookies | quote }}
 
-            # Platform Admin auth
-            {{- if .Values.server.auth.platform.adminUsername }}
+            # Platform Admin auth (bootstrap admin)
+            {{- if .Values.server.auth.platform.enabled }}
             - name: BUTLER_ADMIN_USERNAME
-              value: {{ .Values.server.auth.platform.adminUsername | quote }}
-            {{- end }}
-            {{- if .Values.server.auth.platform.adminPassword }}
+              value: {{ .Values.server.auth.platform.adminUsername | default "admin" | quote }}
             - name: BUTLER_ADMIN_PASSWORD
-              value: {{ .Values.server.auth.platform.adminPassword | quote }}
+              valueFrom:
+                secretKeyRef:
+                  {{- if .Values.server.auth.platform.existingSecret }}
+                  name: {{ .Values.server.auth.platform.existingSecret }}
+                  key: {{ .Values.server.auth.platform.existingSecretKey | default "admin-password" }}
+                  {{- else }}
+                  name: {{ include "butler-console.fullname" . }}-admin
+                  key: admin-password
+                  {{- end }}
             {{- end }}
 
             # OIDC configuration

@@ -87,12 +87,23 @@ server:
     # -- Enable secure cookies (should be true in production with HTTPS)
     secureCookies: false
 
-    # Platform Admin auth (initial setup - use OIDC if able)
+    # Platform Admin auth (bootstrap admin for initial setup)
     platform:
+      # -- Enable bootstrap admin authentication
+      # When enabled, creates an admin user that can authenticate with username/password
+      # Recommended to disable after configuring OIDC/SSO
+      enabled: true
       # -- Admin username for basic auth
-      adminUsername: ""
-      # -- Admin password for basic auth (not recommended for production)
+      adminUsername: "admin"
+      # -- Admin password for basic auth
+      # If not set, a random 24-character password will be generated
+      # Retrieve with: kubectl get secret <release>-butler-console-admin -n <namespace> -o jsonpath='{.data.admin-password}' | base64 -d
       adminPassword: ""
+      # -- Use an existing secret for admin credentials instead of creating one
+      # Secret must contain key specified by existingSecretKey
+      existingSecret: ""
+      # -- Key in existingSecret containing the admin password
+      existingSecretKey: "admin-password"
 
   # OIDC authentication configuration
   oidc:

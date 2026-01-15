@@ -11,8 +11,61 @@ Components:
 To check deployment status:
   kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/part-of=butler
 
+{{- if and .Values.server.enabled .Values.server.auth.platform.enabled }}
+
+=============================================================================
+ PLATFORM ADMIN CREDENTIALS
+=============================================================================
+  Username: {{ .Values.server.auth.platform.adminUsername | default "admin" }}
+  {{- if .Values.server.auth.platform.adminPassword }}
+  Password: (set via values)
+  {{- else if .Values.server.auth.platform.existingSecret }}
+  Password: (stored in secret "{{ .Values.server.auth.platform.existingSecret }}")
+  
+  Retrieve with:
+    kubectl get secret {{ .Values.server.auth.platform.existingSecret }} \
+      -n {{ .Release.Namespace }} \
+      -o jsonpath='{.data.{{ .Values.server.auth.platform.existingSecretKey | default "admin-password" }}}' | base64 -d && echo
+  {{- else }}
+  Password: (auto-generated)
+  
+  Retrieve with:
+    kubectl get secret {{ include "butler-console.fullname" . }}-admin \
+      -n {{ .Release.Namespace }} \
+      -o jsonpath='{.data.admin-password}' | base64 -d && echo
+  {{- end }}
+
+  NOTE: Make sure butler-addons is also installed to create the User CRD.
+  The admin will appear in the Users page after both charts are installed.
+
+{{- if .Values.server.oidc.enabled }}
+
+  OIDC/SSO is also enabled. Platform admin is typically used for
+  initial setup only. Consider disabling after configuring SSO users.
+{{- end }}
+{{- end }}
+
+{{- if and .Values.server.enabled .Values.server.oidc.enabled }}
+
+=============================================================================
+ SSO/OIDC CONFIGURATION
+=============================================================================
+  Issuer: {{ .Values.server.oidc.issuerURL }}
+  {{- if .Values.server.oidc.redirectURL }}
+  Callback URL: {{ .Values.server.oidc.redirectURL }}
+  {{- else }}
+  Callback URL: https://<your-domain>/api/auth/callback
+  {{- end }}
+  {{- if .Values.server.oidc.hostedDomain }}
+  Restricted to: {{ .Values.server.oidc.hostedDomain }}
+  {{- end }}
+{{- end }}
+
 {{- if .Values.ingress.enabled }}
 
+=============================================================================
+ ACCESS
+=============================================================================
 Access the console at:
 {{- range .Values.ingress.hosts }}
   {{- if $.Values.ingress.tls }}
@@ -23,22 +76,44 @@ Access the console at:
 {{- end }}
 {{- else }}
 
+=============================================================================
+ ACCESS (Port Forward)
+=============================================================================
 To access the console locally:
+
   # Port forward the frontend
   kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "butler-console.frontend.fullname" . }} 3000:{{ .Values.frontend.service.port }}
   
   # Open in browser
   open http://localhost:3000
 
-To access the API:
+To access the API directly:
   kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "butler-console.server.fullname" . }} 8080:{{ .Values.server.service.port }}
 {{- end }}
 
+=============================================================================
+ QUICK START
+=============================================================================
+1. Login with platform admin credentials (see above)
+2. Navigate to Admin → Teams to create your first team
+3. Navigate to Admin → Providers to configure infrastructure
+4. Create your first tenant cluster!
+
+=============================================================================
+ TROUBLESHOOTING
+=============================================================================
 To view logs:
   # Server logs
   kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/component=server -f
   
   # Frontend logs
   kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/component=frontend -f
+
+If admin doesn't appear in Users page:
+  # Check User CRD exists (from butler-addons)
+  kubectl get user admin -o yaml
+  
+  # Check password hash was synced
+  kubectl get secret {{ include "butler-console.fullname" . }}-admin -n {{ .Release.Namespace }} -o jsonpath='{.data.password-hash}' | base64 -d
 
 Documentation: https://docs.butlerlabs.dev/console

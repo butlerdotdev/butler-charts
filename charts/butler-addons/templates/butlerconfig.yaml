@@ -1,0 +1,30 @@
+# =============================================================================
+# Butler Platform Configuration
+# Singleton resource that configures platform-wide settings
+# =============================================================================
+{{- if .Values.config.enabled }}
+---
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: ButlerConfig
+metadata:
+  name: butler
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  multiTenancy:
+    mode: {{ .Values.config.multiTenancy.mode | default "Optional" }}
+  defaultNamespace: {{ .Values.config.defaultNamespace | default "butler-tenants" }}
+  {{- with .Values.config.defaultProviderConfigRef }}
+  defaultProviderConfigRef:
+    name: {{ . }}
+  {{- end }}
+  {{- with .Values.config.defaultTeamLimits }}
+  defaultTeamLimits:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.config.defaultAddonVersions }}
+  defaultAddonVersions:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

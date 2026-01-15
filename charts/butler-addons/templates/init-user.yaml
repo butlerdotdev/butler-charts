@@ -1,0 +1,39 @@
+{{/*
+Copyright 2026 The Butler Authors.
+SPDX-License-Identifier: Apache-2.0
+*/}}
+{{/*
+Bootstrap Platform Admin User CRD
+
+Creates a User resource for the platform admin so they appear in the Users page.
+The password is stored in the butler-console-admin Secret (created by butler-console chart).
+The server populates the password-hash key on startup.
+
+This User CRD references that secret via passwordSecretRef.
+*/}}
+{{- if .Values.config.bootstrapAdmin.enabled }}
+---
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: User
+metadata:
+  name: {{ .Values.config.bootstrapAdmin.username | default "admin" }}
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/user-type: platform-admin
+    {{- include "butler-addons.labels" . | nindent 4 }}
+  annotations:
+    # Marker for server to sync password hash on startup
+    butler.butlerlabs.dev/sync-password: "true"
+spec:
+  email: {{ .Values.config.bootstrapAdmin.email | default "admin@localhost" }}
+  displayName: {{ .Values.config.bootstrapAdmin.displayName | default "Platform Administrator" }}
+  authType: internal
+  isPlatformAdmin: true
+  # Password is validated against the hash stored in the referenced Secret
+  passwordSecretRef:
+    name: {{ .Values.config.bootstrapAdmin.passwordSecretRef.name | default "butler-console-admin" }}
+    namespace: {{ .Values.config.bootstrapAdmin.passwordSecretRef.namespace | default "butler-system" }}
+    key: {{ .Values.config.bootstrapAdmin.passwordSecretRef.key | default "password-hash" }}
+status:
+  phase: Active
+{{- end }}

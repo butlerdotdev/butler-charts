@@ -1,8 +1,63 @@
 # Butler Addon Definitions Configuration
 # =======================================
-# Controls which addon categories are installed in the catalog
 
-# Platform addons - core infrastructure components
+# =============================================================================
+# Butler Platform Configuration
+# =============================================================================
+config:
+  # -- Enable ButlerConfig resource creation
+  enabled: true
+  
+  multiTenancy:
+    # -- Multi-tenancy mode
+    # Disabled: All clusters in butler-tenants, no teams
+    # Optional: Teams available but not required (recommended for getting started)
+    # Enforced: All clusters must belong to a team
+    mode: Optional
+  
+  # -- Default namespace for TenantClusters when not using teams
+  defaultNamespace: butler-tenants
+  
+  # -- Default provider config reference (optional)
+  # defaultProviderConfigRef: harvester
+  
+  # -- Default resource limits for new teams (optional)
+  # defaultTeamLimits:
+  #   maxClusters: 10
+  #   maxWorkersPerCluster: 10
+  #   maxTotalCPU: "100"
+  #   maxTotalMemory: "200Gi"
+  
+  # -- Default addon versions (optional)
+  # defaultAddonVersions:
+  #   cilium: "1.17.0"
+  #   metallb: "0.14.9"
+
+  # Bootstrap Platform Admin User
+  # Creates a User CRD so the admin appears in the Users page
+  bootstrapAdmin:
+    # -- Enable bootstrap admin User CRD creation
+    enabled: true
+    # -- Username (also used as CRD name)
+    username: admin
+    # -- Email address for the admin
+    email: admin@localhost
+    # -- Display name shown in UI
+    displayName: Platform Administrator
+    
+    # Reference to the Secret containing the password hash
+    # This should match the secret created by butler-console chart
+    passwordSecretRef:
+      # -- Secret name (default matches butler-console chart output)
+      name: butler-console-admin
+      # -- Secret namespace (should match where butler-console is installed)
+      namespace: butler-system
+      # -- Key in secret containing the bcrypt hash
+      key: password-hash
+
+# =============================================================================
+# Platform Addons - Core Infrastructure Components
+# =============================================================================
 # These are essential for cluster operation
 platform:
   enabled: true
@@ -24,7 +79,9 @@ platform:
     flux:
       enabled: true
 
-# Optional addons - observability, security, and utilities
+# =============================================================================
+# Optional Addons - Observability, Security, and Utilities
+# =============================================================================
 # These enhance cluster capabilities but aren't required
 optional:
   enabled: true
@@ -83,8 +140,6 @@ optional:
     rabbitmq:
       enabled: true
 
-    # GitOps
-    flux:
-      enabled: true
+    # GitOps (note: flux is also in platform addons)
     argocd:
       enabled: true

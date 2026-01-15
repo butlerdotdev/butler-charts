@@ -18,11 +18,14 @@ rules:
     resources: ["namespaces", "events", "configmaps"]
     verbs: ["get", "list", "watch"]
   - apiGroups: [""]
-    resources: ["secrets"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: [""]
     resources: ["pods", "pods/log"]
     verbs: ["get", "list", "watch"]
+  
+  # Secrets - read for kubeconfig/credentials, update for password hash sync
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  
   # Terminal access requires exec
   - apiGroups: [""]
     resources: ["pods/exec"]
@@ -35,6 +38,14 @@ rules:
   - apiGroups: ["butler.butlerlabs.dev"]
     resources: ["tenantclusters/status", "tenantaddons/status", "teams/status"]
     verbs: ["get"]
+  
+  # User CRD - full access for user management
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["users"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["users/status"]
+    verbs: ["get", "update", "patch"]
   
   # ManagementAddon - full CRUD for management cluster addons
   - apiGroups: ["butler.butlerlabs.dev"]
