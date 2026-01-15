@@ -140,6 +140,8 @@ optional:
     rabbitmq:
       enabled: true
 
-    # GitOps (note: flux is also in platform addons)
     argocd:
+      enabled: true
+
+    flux:
       enabled: true
