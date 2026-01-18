@@ -393,8 +393,7 @@ spec:
                   Team.
                 properties:
                   clusterUtilization:
-                    description: ClusterUtilization is percentage of MaxClusters used
-                      (0-100).
+                    description: ClusterUtilization is percentage of MaxClusters used.
                     format: int32
                     maximum: 100
                     minimum: 0
@@ -404,22 +403,19 @@ spec:
                     format: int32
                     type: integer
                   cpuUtilization:
-                    description: CPUUtilization is percentage of MaxCPUCores used
-                      (0-100).
+                    description: CPUUtilization is percentage of MaxCPUCores used.
                     format: int32
                     maximum: 100
                     minimum: 0
                     type: integer
                   memoryUtilization:
-                    description: MemoryUtilization is percentage of MaxMemory used
-                      (0-100).
+                    description: MemoryUtilization is percentage of MaxMemory used.
                     format: int32
                     maximum: 100
                     minimum: 0
                     type: integer
                   nodeUtilization:
-                    description: NodeUtilization is percentage of MaxTotalNodes used
-                      (0-100).
+                    description: NodeUtilization is percentage of MaxTotalNodes used.
                     format: int32
                     maximum: 100
                     minimum: 0
