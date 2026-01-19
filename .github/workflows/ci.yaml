@@ -1,0 +1,209 @@
+# Copyright 2025 The Butler Authors.
+# SPDX-License-Identifier: Apache-2.0
+
+# Lint, test, and publish Helm charts on PRs and pushes
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/**'
+      - '.github/workflows/ci.yaml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'charts/**'
+      - '.github/workflows/ci.yaml'
+
+env:
+  REGISTRY: ghcr.io
+  REGISTRY_PATH: ghcr.io/butlerdotdev/charts
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2
+
+      - name: List changed charts
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --config ct.yaml 2>/dev/null || echo "")
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "charts=$changed" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Lint all charts
+        run: |
+          for chart in charts/*/; do
+            echo "Linting $chart..."
+            helm lint "$chart"
+          done
+
+      - name: Run chart-testing lint
+        if: steps.list-changed.outputs.changed == 'true'
+        run: ct lint --config ct.yaml
+
+  template-test:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Template charts with default values
+        run: |
+          for chart in charts/*/; do
+            echo "Templating $chart with default values..."
+            helm template test "$chart" > /dev/null
+          done
+
+      - name: Template charts with edge profile
+        run: |
+          for chart in charts/butler-controller charts/butler-console; do
+            if [[ -d "$chart" ]]; then
+              echo "Templating $chart with edge profile..."
+              helm template test "$chart" -f profiles/edge.yaml > /dev/null
+            fi
+          done
+
+      - name: Template charts with core profile
+        run: |
+          for chart in charts/butler-controller charts/butler-console; do
+            if [[ -d "$chart" ]]; then
+              echo "Templating $chart with core profile..."
+              helm template test "$chart" -f profiles/core.yaml > /dev/null
+            fi
+          done
+
+  # Package and push charts for testing (PRs and main)
+  package:
+    runs-on: ubuntu-latest
+    needs: [lint, template-test]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine version suffix
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "suffix=-pr${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+            echo "type=pr" >> $GITHUB_OUTPUT
+          else
+            SHORT_SHA="${GITHUB_SHA::7}"
+            echo "suffix=-sha-${SHORT_SHA}" >> $GITHUB_OUTPUT
+            echo "type=sha" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get changed charts
+        id: changed
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            # For PRs, get changed charts
+            CHANGED=$(git diff --name-only origin/main...HEAD -- charts/ | cut -d'/' -f2 | sort -u | tr '\n' ' ')
+          else
+            # For main pushes, get charts changed in the commit
+            CHANGED=$(git diff --name-only HEAD~1 HEAD -- charts/ | cut -d'/' -f2 | sort -u | tr '\n' ' ')
+          fi
+          
+          if [[ -z "$CHANGED" ]]; then
+            echo "No charts changed"
+            echo "charts=" >> $GITHUB_OUTPUT
+          else
+            echo "Changed charts: $CHANGED"
+            echo "charts=$CHANGED" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Package and push changed charts
+        if: steps.changed.outputs.charts != ''
+        run: |
+          SUFFIX="${{ steps.version.outputs.suffix }}"
+          
+          for chart_name in ${{ steps.changed.outputs.charts }}; do
+            chart_dir="charts/${chart_name}"
+            
+            if [[ ! -d "$chart_dir" ]]; then
+              echo "Skipping $chart_name - directory not found"
+              continue
+            fi
+            
+            # Read base version from Chart.yaml
+            base_version=$(grep '^version:' "$chart_dir/Chart.yaml" | awk '{print $2}')
+            
+            # Create dev version: e.g., 0.1.1-pr42 or 0.1.1-sha-abc1234
+            dev_version="${base_version}${SUFFIX}"
+            
+            echo "Packaging $chart_name version $dev_version..."
+            
+            # Package with dev version
+            helm package "$chart_dir" --version "$dev_version" --destination /tmp/charts/
+            
+            # Push to OCI registry
+            helm push "/tmp/charts/${chart_name}-${dev_version}.tgz" "oci://${{ env.REGISTRY_PATH }}"
+            
+            echo "✅ Pushed ${chart_name}:${dev_version}"
+          done
+
+      - name: Summary
+        if: steps.changed.outputs.charts != ''
+        run: |
+          SUFFIX="${{ steps.version.outputs.suffix }}"
+          
+          echo "## 📦 Charts Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Chart | Version | Install Command |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|---------|-----------------|" >> $GITHUB_STEP_SUMMARY
+          
+          for chart_name in ${{ steps.changed.outputs.charts }}; do
+            chart_dir="charts/${chart_name}"
+            if [[ -d "$chart_dir" ]]; then
+              base_version=$(grep '^version:' "$chart_dir/Chart.yaml" | awk '{print $2}')
+              dev_version="${base_version}${SUFFIX}"
+              echo "| \`${chart_name}\` | \`${dev_version}\` | \`helm upgrade ${chart_name} oci://${{ env.REGISTRY_PATH }}/${chart_name} --version ${dev_version} -n butler-system\` |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
