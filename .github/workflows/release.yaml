@@ -5,6 +5,7 @@ on:
   push:
     tags:
       - 'butler-*-v*'  # e.g., butler-controller-v0.1.0
+      - 'steward-*-v*'
 
 env:
   REGISTRY: ghcr.io
