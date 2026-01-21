@@ -33,18 +33,18 @@ jobs:
       - name: Parse tag
         id: parse
         run: |
-          # Tag format: butler-<chart>-v<version>
-          # e.g., butler-controller-v0.1.0
+          # Tag format: butler-<chart>-v<version> or steward-<chart>-v<version>
+          # e.g., butler-controller-v0.1.0 or steward-etcd-v0.14.0
           TAG="${GITHUB_REF#refs/tags/}"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           
-          # Extract chart name (everything between 'butler-' and '-v')
-          CHART_NAME=$(echo "$TAG" | sed -E 's/^(butler-[a-z-]+)-v.*/\1/')
-          echo "chart_name=$CHART_NAME" >> $GITHUB_OUTPUT
-          
-          # Extract version
+          # Extract version (everything after the last -v)
           VERSION=$(echo "$TAG" | sed -E 's/.*-v(.*)/\1/')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+          # Extract chart name (everything before -v<version>)
+          CHART_NAME=$(echo "$TAG" | sed -E "s/-v${VERSION}$//")
+          echo "chart_name=$CHART_NAME" >> $GITHUB_OUTPUT
           
           echo "Parsed: chart=$CHART_NAME version=$VERSION"
 
