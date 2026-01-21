@@ -1,0 +1,16 @@
+apiVersion: v2
+appVersion: 3.5.17
+description: Helm chart for deploying a multi-tenant etcd cluster for Steward
+home: https://github.com/butlerdotdev/steward
+icon: https://github.com/butlerdotdev/steward/raw/main/assets/logo.png
+maintainers:
+  - email: andrew@butlerlabs.dev
+    name: Andrew Bagan
+    url: https://butlerlabs.dev
+name: steward-etcd
+sources:
+  - https://github.com/butlerdotdev/butler-charts
+type: application
+version: 0.14.0
+annotations:
+  artifacthub.io/license: Apache-2.0
