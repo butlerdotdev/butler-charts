@@ -33,10 +33,10 @@ rules:
   
   # Butler CRDs - full access for management operations
   - apiGroups: ["butler.butlerlabs.dev"]
-    resources: ["tenantclusters", "tenantaddons", "teams", "butlerconfigs", "providerconfigs"]
+    resources: ["tenantclusters", "tenantaddons", "teams", "butlerconfigs", "providerconfigs", "identityproviders"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
   - apiGroups: ["butler.butlerlabs.dev"]
-    resources: ["tenantclusters/status", "tenantaddons/status", "teams/status"]
+    resources: ["tenantclusters/status", "tenantaddons/status", "teams/status", "identityproviders/status"]
     verbs: ["get"]
   
   # User CRD - full access for user management
@@ -116,4 +116,3 @@ subjects:
     name: {{ include "butler-console.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
 {{- end }}
-
