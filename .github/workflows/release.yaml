@@ -118,6 +118,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  notify-docs:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger docs site rebuild
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.DOCS_REBUILD_PAT }}
+          repository: butlerdotdev/butlerlabs-docs
+          event-type: release-published
+          client-payload: '{"repo": "${{ github.repository }}", "tag": "${{ github.ref_name }}"}'
+
   # Release all charts at once (for coordinated releases)
   release-all:
     runs-on: ubuntu-latest
