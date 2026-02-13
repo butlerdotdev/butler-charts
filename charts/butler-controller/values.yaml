@@ -86,6 +86,14 @@ controller:
   # -- Concurrent reconciles for TenantCluster
   concurrentReconciles: 5
 
+# cert-manager configuration for webhook TLS
+certManager:
+  # -- Custom issuer reference for webhook certificate
+  # If not set, defaults to a ClusterIssuer named "selfsigned-issuer"
+  issuerRef: {}
+  # kind: ClusterIssuer
+  # name: letsencrypt-prod
+
 # Leader election configuration
 leaderElection:
   # -- Enable leader election (required for HA)

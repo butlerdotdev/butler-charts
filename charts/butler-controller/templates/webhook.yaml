@@ -1,0 +1,94 @@
+{{/*
+Copyright 2026 The Butler Authors.
+SPDX-License-Identifier: Apache-2.0
+*/}}
+{{- if .Values.controller.webhooksEnabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "butler-controller.fullname" . }}-webhook
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "butler-controller.labels" . | nindent 4 }}
+spec:
+  ports:
+    - port: 443
+      targetPort: webhook
+      protocol: TCP
+      name: webhook
+  selector:
+    {{- include "butler-controller.selectorLabels" . | nindent 4 }}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: {{ include "butler-controller.fullname" . }}
+  labels:
+    {{- include "butler-controller.labels" . | nindent 4 }}
+  annotations:
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/{{ include "butler-controller.fullname" . }}-webhook-cert
+webhooks:
+  - name: vtenantcluster.kb.io
+    admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "butler-controller.fullname" . }}-webhook
+        namespace: {{ .Release.Namespace }}
+        path: /validate-butler-butlerlabs-dev-v1alpha1-tenantcluster
+    failurePolicy: Fail
+    rules:
+      - apiGroups:
+          - butler.butlerlabs.dev
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - tenantclusters
+    sideEffects: None
+  - name: vnetworkpool.kb.io
+    admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "butler-controller.fullname" . }}-webhook
+        namespace: {{ .Release.Namespace }}
+        path: /validate-butler-butlerlabs-dev-v1alpha1-networkpool
+    failurePolicy: Fail
+    rules:
+      - apiGroups:
+          - butler.butlerlabs.dev
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+          - DELETE
+        resources:
+          - networkpools
+    sideEffects: None
+  - name: vproviderconfig.kb.io
+    admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "butler-controller.fullname" . }}-webhook
+        namespace: {{ .Release.Namespace }}
+        path: /validate-butler-butlerlabs-dev-v1alpha1-providerconfig
+    failurePolicy: Fail
+    rules:
+      - apiGroups:
+          - butler.butlerlabs.dev
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+          - DELETE
+        resources:
+          - providerconfigs
+    sideEffects: None
+{{- end }}

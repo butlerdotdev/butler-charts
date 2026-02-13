@@ -54,6 +54,7 @@ spec:
             - --zap-encoder=json
             {{- end }}
             - --enable-kamaji-controllers={{ .Values.controller.enableKamajiControllers | default true }}
+            - --enable-webhooks={{ .Values.controller.webhooksEnabled }}
           env:
             - name: POD_NAMESPACE
               valueFrom:
@@ -107,6 +108,11 @@ spec:
               mountPath: /tmp
             - name: helm-cache
               mountPath: /home/nonroot
+            {{- if .Values.controller.webhooksEnabled }}
+            - name: webhook-cert
+              mountPath: /tmp/k8s-webhook-server/serving-certs
+              readOnly: true
+            {{- end }}
             {{- with .Values.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -115,6 +121,12 @@ spec:
           emptyDir: {}
         - name: helm-cache
           emptyDir: {}
+        {{- if .Values.controller.webhooksEnabled }}
+        - name: webhook-cert
+          secret:
+            secretName: {{ include "butler-controller.fullname" . }}-webhook-cert
+            defaultMode: 420
+        {{- end }}
         {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
