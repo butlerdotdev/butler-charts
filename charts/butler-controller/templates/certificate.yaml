@@ -1,0 +1,27 @@
+{{/*
+Copyright 2026 The Butler Authors.
+SPDX-License-Identifier: Apache-2.0
+*/}}
+{{- if .Values.controller.webhooksEnabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "butler-controller.fullname" . }}-webhook-cert
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "butler-controller.labels" . | nindent 4 }}
+spec:
+  secretName: {{ include "butler-controller.fullname" . }}-webhook-cert
+  dnsNames:
+    - {{ include "butler-controller.fullname" . }}-webhook.{{ .Release.Namespace }}.svc
+    - {{ include "butler-controller.fullname" . }}-webhook.{{ .Release.Namespace }}.svc.cluster.local
+  issuerRef:
+    {{- if .Values.certManager.issuerRef }}
+    {{- toYaml .Values.certManager.issuerRef | nindent 4 }}
+    {{- else }}
+    kind: ClusterIssuer
+    name: selfsigned-issuer
+    {{- end }}
+  duration: 8760h # 1 year
+  renewBefore: 720h # 30 days
+{{- end }}

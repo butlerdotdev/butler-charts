@@ -29,6 +29,10 @@ crds:
   managementAddon: true
   # -- Install user CRD
   user: true
+  # -- Install NetworkPool CRD (enterprise networking)
+  networkPool: true
+  # -- Install IPAllocation CRD (enterprise networking)
+  ipAllocation: true
 
 # -- Keep CRDs on chart uninstall (recommended for production)
 # Setting this to true adds the "helm.sh/resource-policy: keep" annotation

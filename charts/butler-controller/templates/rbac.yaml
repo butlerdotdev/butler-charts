@@ -16,8 +16,11 @@ metadata:
 rules:
   # Core resources
   - apiGroups: [""]
-    resources: ["secrets", "configmaps", "events"]
+    resources: ["secrets", "configmaps"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
   - apiGroups: [""]
     resources: ["namespaces"]
     verbs: ["get", "list", "watch", "create", "delete"]
@@ -76,10 +79,38 @@ rules:
     resources: ["butlerconfigs/status"]
     verbs: ["get", "update", "patch"]
   
-  # Butler CRDs - ProviderConfig (read-only)
+  # Butler CRDs - ProviderConfig
   - apiGroups: ["butler.butlerlabs.dev"]
     resources: ["providerconfigs"]
-    verbs: ["get", "list", "watch"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["providerconfigs/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["providerconfigs/finalizers"]
+    verbs: ["update"]
+
+  # Butler CRDs - NetworkPool
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["networkpools"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["networkpools/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["networkpools/finalizers"]
+    verbs: ["update"]
+
+  # Butler CRDs - IPAllocation
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["ipallocations"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["ipallocations/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["ipallocations/finalizers"]
+    verbs: ["update"]
 
   - apiGroups: ["butler.butlerlabs.dev"]
     resources: ["addondefinitions"]
