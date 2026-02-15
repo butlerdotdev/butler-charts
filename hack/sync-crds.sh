@@ -31,6 +31,8 @@ declare -a CRD_MAPPINGS=(
     "butler.butlerlabs.dev_tenantaddons.yaml:tenantAddon:tenantaddon-crd.yaml"
     "butler.butlerlabs.dev_tenantclusters.yaml:tenantCluster:tenantcluster-crd.yaml"
     "butler.butlerlabs.dev_users.yaml:user:user-crd.yaml"
+    "butler.butlerlabs.dev_workspaces.yaml:workspace:workspace-crd.yaml"
+    "butler.butlerlabs.dev_workspacetemplates.yaml:workspaceTemplate:workspacetemplate-crd.yaml"
 )
 
 synced=0

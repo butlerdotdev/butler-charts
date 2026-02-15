@@ -33,6 +33,10 @@ crds:
   networkPool: true
   # -- Install IPAllocation CRD (enterprise networking)
   ipAllocation: true
+  # -- Install Workspace CRD (cloud development environments)
+  workspace: true
+  # -- Install WorkspaceTemplate CRD (workspace templates)
+  workspaceTemplate: true
 
 # -- Keep CRDs on chart uninstall (recommended for production)
 # Setting this to true adds the "helm.sh/resource-policy: keep" annotation

@@ -55,6 +55,22 @@ rules:
     resources: ["managementaddons/status"]
     verbs: ["get"]
   
+  # Workspace and WorkspaceTemplate - full CRUD for workspace management
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["workspaces", "workspacetemplates"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["workspaces/status", "workspacetemplates/status"]
+    verbs: ["get", "update", "patch"]
+
+  # NetworkPool and IPAllocation - for network management UI
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["networkpools", "ipallocations"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["networkpools/status", "ipallocations/status"]
+    verbs: ["get"]
+
   # AddonDefinition - read for catalog display
   - apiGroups: ["butler.butlerlabs.dev"]
     resources: ["addondefinitions"]
