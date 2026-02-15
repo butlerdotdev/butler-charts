@@ -50,7 +50,6 @@ jobs:
           changed=$(ct list-changed --config ct.yaml 2>/dev/null || echo "")
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> $GITHUB_OUTPUT
-            echo "charts=$changed" >> $GITHUB_OUTPUT
           else
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
