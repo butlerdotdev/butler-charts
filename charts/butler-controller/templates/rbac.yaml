@@ -112,6 +112,28 @@ rules:
     resources: ["ipallocations/finalizers"]
     verbs: ["update"]
 
+  # Butler CRDs - Workspace
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["workspaces"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["workspaces/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["workspaces/finalizers"]
+    verbs: ["update"]
+
+  # Butler CRDs - WorkspaceTemplate
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["workspacetemplates"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["workspacetemplates/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["workspacetemplates/finalizers"]
+    verbs: ["update"]
+
   - apiGroups: ["butler.butlerlabs.dev"]
     resources: ["addondefinitions"]
     verbs: ["get", "list", "watch"]
