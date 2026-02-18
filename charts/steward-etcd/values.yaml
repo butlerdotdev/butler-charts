@@ -59,7 +59,10 @@ autoCompactionMode: periodic
 autoCompactionRetention: 5m
 
 # -- Number of committed transactions to trigger a snapshot to disk.
-snapshotCount: "10000"
+# Default 50000 reduces snapshot frequency for multi-tenant deployments.
+# With 10+ TCPs, the default 10000 triggers snapshots every few minutes,
+# freezing the raft leader for seconds. See docs/etcd-tuning-for-multi-tenant.md.
+snapshotCount: "50000"
 
 # -- Raise alarms when backend size exceeds the given quota. It will put the cluster into a maintenance mode which only accepts key reads and deletes. 
 quotaBackendBytes: "8589934592" # 8Gi
@@ -93,10 +96,14 @@ podSecurityContext: {}
 # -- The priorityClassName to apply to etcd
 priorityClassName: system-cluster-critical
 
-# -- Resources assigned to the etcd containers
+# -- Resources assigned to the etcd containers.
+# Requests ensure Burstable QoS to prevent CPU starvation under contention.
+# For 10+ TCPs, consider increasing to 500m/512Mi requests and 2/1Gi limits.
 resources:
+  requests:
+    cpu: "200m"
+    memory: "256Mi"
   limits: {}
-  requests: {}
 
 # -- Kubernetes node selector rules to schedule etcd
 nodeSelector:
