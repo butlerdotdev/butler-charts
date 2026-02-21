@@ -93,6 +93,10 @@ optional:
       enabled: true
     grafana:
       enabled: true
+    vectorAgent:
+      enabled: true
+    vectorAggregator:
+      enabled: true
     victoriaMetrics:
       enabled: true
     

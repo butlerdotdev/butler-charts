@@ -57,6 +57,125 @@ spec:
     homepage: https://prometheus.io
 ---
 {{- end }}
+{{- if .Values.optional.addons.vectorAgent.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: vector-agent
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: Vector Agent
+  description: Lightweight log and metric collector for shipping data to a centralized pipeline
+  category: observability
+  icon: "📡"
+  platform: false
+  chart:
+    repository: https://helm.vector.dev
+    name: vector
+    defaultVersion: "0.37.1"
+    availableVersions:
+      - "0.37.1"
+      - "0.36.0"
+      - "0.35.0"
+  defaults:
+    namespace: vector
+    releaseName: vector-agent
+    createNamespace: true
+    timeout: "10m"
+    values:
+      role: Agent
+      customConfig:
+        data_dir: /vector-data-dir
+        api:
+          enabled: true
+          address: "127.0.0.1:8686"
+          playground: false
+        sources:
+          kubernetes_logs:
+            type: kubernetes_logs
+          journald:
+            type: journald
+          internal_metrics:
+            type: internal_metrics
+        sinks:
+          aggregator:
+            type: vector
+            inputs:
+              - kubernetes_logs
+              - journald
+            address: "AGGREGATOR_ENDPOINT:6000"
+  links:
+    documentation: https://vector.dev/docs
+    source: https://github.com/vectordotdev/vector
+    homepage: https://vector.dev
+---
+{{- end }}
+{{- if .Values.optional.addons.vectorAggregator.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: vector-aggregator
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: Vector Aggregator
+  description: Centralized log and metric aggregation service for the observability pipeline
+  category: observability
+  icon: "📊"
+  platform: false
+  chart:
+    repository: https://helm.vector.dev
+    name: vector
+    defaultVersion: "0.37.1"
+    availableVersions:
+      - "0.37.1"
+      - "0.36.0"
+      - "0.35.0"
+  defaults:
+    namespace: vector
+    releaseName: vector-aggregator
+    createNamespace: true
+    timeout: "10m"
+    values:
+      role: Aggregator
+      replicas: 2
+      customConfig:
+        data_dir: /vector-data-dir
+        api:
+          enabled: true
+          address: "0.0.0.0:8686"
+          playground: false
+        sources:
+          vector_agents:
+            type: vector
+            address: "0.0.0.0:6000"
+            version: "2"
+        sinks:
+          stdout:
+            type: console
+            inputs:
+              - vector_agents
+            encoding:
+              codec: json
+      service:
+        enabled: true
+        type: ClusterIP
+        ports:
+          - name: vector
+            port: 6000
+            protocol: TCP
+            targetPort: 6000
+  links:
+    documentation: https://vector.dev/docs
+    source: https://github.com/vectordotdev/vector
+    homepage: https://vector.dev
+---
+{{- end }}
 {{- if .Values.optional.addons.victoriaMetrics.enabled }}
 apiVersion: butler.butlerlabs.dev/v1alpha1
 kind: AddonDefinition
