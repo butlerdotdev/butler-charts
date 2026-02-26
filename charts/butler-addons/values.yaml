@@ -7,27 +7,27 @@
 config:
   # -- Enable ButlerConfig resource creation
   enabled: true
-  
+
   multiTenancy:
     # -- Multi-tenancy mode
     # Disabled: All clusters in butler-tenants, no teams
     # Optional: Teams available but not required (recommended for getting started)
     # Enforced: All clusters must belong to a team
     mode: Optional
-  
+
   # -- Default namespace for TenantClusters when not using teams
   defaultNamespace: butler-tenants
-  
+
   # -- Default provider config reference (optional)
   # defaultProviderConfigRef: harvester
-  
+
   # -- Default resource limits for new teams (optional)
   # defaultTeamLimits:
   #   maxClusters: 10
   #   maxWorkersPerCluster: 10
   #   maxTotalCPU: "100"
   #   maxTotalMemory: "200Gi"
-  
+
   # -- Default addon versions (optional)
   # defaultAddonVersions:
   #   cilium: "1.17.0"
@@ -44,7 +44,7 @@ config:
     email: admin@localhost
     # -- Display name shown in UI
     displayName: Platform Administrator
-    
+
     # Reference to the Secret containing the password hash
     # This should match the secret created by butler-console chart
     passwordSecretRef:
@@ -61,7 +61,7 @@ config:
 # These are essential for cluster operation
 platform:
   enabled: true
-  
+
   # Individual platform addons can be disabled
   addons:
     cilium:
@@ -85,7 +85,7 @@ platform:
 # These enhance cluster capabilities but aren't required
 optional:
   enabled: true
-  
+
   # Individual optional addons can be disabled
   addons:
     # Observability
@@ -99,11 +99,14 @@ optional:
       enabled: true
     victoriaMetrics:
       enabled: true
-    
+
     # Logging
     loki:
       enabled: true
     victoriaLogs:
+      enabled: true
+
+    otelCollector:
       enabled: true
 
     # Tracing
@@ -111,33 +114,33 @@ optional:
       enabled: true
     jaeger:
       enabled: true
-    
+
     # Backup
     velero:
       enabled: true
-    
+
     # DNS
     externalDns:
       enabled: true
-    
+
     # Security
     externalSecrets:
       enabled: true
     sealedSecrets:
       enabled: true
-    
+
     # Service Mesh
     istio:
       enabled: true
     linkerd:
       enabled: true
-    
+
     # Database
     cnpg:
       enabled: true
     redis:
       enabled: true
-    
+
     # Messaging
     nats:
       enabled: true

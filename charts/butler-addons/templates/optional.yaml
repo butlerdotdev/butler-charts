@@ -39,6 +39,13 @@ spec:
       prometheus:
         prometheusSpec:
           retention: 15d
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
           storageSpec:
             volumeClaimTemplate:
               spec:
@@ -49,8 +56,23 @@ spec:
       grafana:
         enabled: true
         adminPassword: butler-admin
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 300m
+            memory: 256Mi
       alertmanager:
         enabled: true
+        alertmanagerSpec:
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
   links:
     documentation: https://prometheus-operator.dev
     source: https://github.com/prometheus-operator/prometheus-operator
@@ -87,6 +109,13 @@ spec:
     timeout: "10m"
     values:
       role: Agent
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 200m
+          memory: 128Mi
       customConfig:
         data_dir: /vector-data-dir
         api:
@@ -144,6 +173,13 @@ spec:
     values:
       role: Aggregator
       replicas: 2
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 256Mi
       customConfig:
         data_dir: /vector-data-dir
         api:
@@ -346,6 +382,80 @@ spec:
     documentation: https://www.jaegertracing.io/docs
     source: https://github.com/jaegertracing/jaeger
     homepage: https://www.jaegertracing.io
+---
+{{- end }}
+{{- if .Values.optional.addons.otelCollector.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: otel-collector
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: OpenTelemetry Collector
+  description: Vendor-neutral telemetry agent for collecting traces, metrics, and logs via OTLP
+  category: observability
+  icon: "🔭"
+  platform: false
+  chart:
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+    name: opentelemetry-collector
+    defaultVersion: "0.108.0"
+    availableVersions:
+      - "0.108.0"
+      - "0.104.0"
+      - "0.100.0"
+  defaults:
+    namespace: otel
+    releaseName: otel-collector
+    createNamespace: true
+    timeout: "10m"
+    values:
+      mode: daemonset
+      image:
+        repository: otel/opentelemetry-collector-contrib
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 200m
+          memory: 128Mi
+      presets:
+        kubernetesAttributes:
+          enabled: true
+      config:
+        receivers:
+          otlp:
+            protocols:
+              grpc:
+                endpoint: "0.0.0.0:4317"
+              http:
+                endpoint: "0.0.0.0:4318"
+        processors:
+          batch:
+            timeout: 5s
+            send_batch_size: 1024
+          memory_limiter:
+            check_interval: 5s
+            limit_mib: 256
+        exporters:
+          otlp:
+            endpoint: "TRACE_ENDPOINT:4317"
+            tls:
+              insecure: true
+        service:
+          pipelines:
+            traces:
+              receivers: [otlp]
+              processors: [memory_limiter, batch]
+              exporters: [otlp]
+  links:
+    documentation: https://opentelemetry.io/docs/collector
+    source: https://github.com/open-telemetry/opentelemetry-collector
+    homepage: https://opentelemetry.io
 ---
 {{- end }}
 # =============================================================================

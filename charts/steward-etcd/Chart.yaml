@@ -11,6 +11,6 @@ name: steward-etcd
 sources:
   - https://github.com/butlerdotdev/butler-charts
 type: application
-version: 0.14.0
+version: 0.15.0
 annotations:
   artifacthub.io/license: Apache-2.0
