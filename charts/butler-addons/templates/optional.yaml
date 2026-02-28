@@ -39,6 +39,13 @@ spec:
       prometheus:
         prometheusSpec:
           retention: 15d
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
           storageSpec:
             volumeClaimTemplate:
               spec:
@@ -49,12 +56,160 @@ spec:
       grafana:
         enabled: true
         adminPassword: butler-admin
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 300m
+            memory: 256Mi
       alertmanager:
         enabled: true
+        alertmanagerSpec:
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
   links:
     documentation: https://prometheus-operator.dev
     source: https://github.com/prometheus-operator/prometheus-operator
     homepage: https://prometheus.io
+---
+{{- end }}
+{{- if .Values.optional.addons.vectorAgent.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: vector-agent
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: Vector Agent
+  description: Lightweight log and metric collector for shipping data to a centralized pipeline
+  category: observability
+  icon: "📡"
+  platform: false
+  chart:
+    repository: https://helm.vector.dev
+    name: vector
+    defaultVersion: "0.37.1"
+    availableVersions:
+      - "0.37.1"
+      - "0.36.0"
+      - "0.35.0"
+  defaults:
+    namespace: vector
+    releaseName: vector-agent
+    createNamespace: true
+    timeout: "10m"
+    values:
+      role: Agent
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 200m
+          memory: 128Mi
+      customConfig:
+        data_dir: /vector-data-dir
+        api:
+          enabled: true
+          address: "127.0.0.1:8686"
+          playground: false
+        sources:
+          kubernetes_logs:
+            type: kubernetes_logs
+          journald:
+            type: journald
+          internal_metrics:
+            type: internal_metrics
+        sinks:
+          aggregator:
+            type: vector
+            inputs:
+              - kubernetes_logs
+              - journald
+            address: "AGGREGATOR_ENDPOINT:6000"
+  links:
+    documentation: https://vector.dev/docs
+    source: https://github.com/vectordotdev/vector
+    homepage: https://vector.dev
+---
+{{- end }}
+{{- if .Values.optional.addons.vectorAggregator.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: vector-aggregator
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: Vector Aggregator
+  description: Centralized log and metric aggregation service for the observability pipeline
+  category: observability
+  icon: "📊"
+  platform: false
+  chart:
+    repository: https://helm.vector.dev
+    name: vector
+    defaultVersion: "0.37.1"
+    availableVersions:
+      - "0.37.1"
+      - "0.36.0"
+      - "0.35.0"
+  defaults:
+    namespace: vector
+    releaseName: vector-aggregator
+    createNamespace: true
+    timeout: "10m"
+    values:
+      role: Aggregator
+      replicas: 2
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 256Mi
+      customConfig:
+        data_dir: /vector-data-dir
+        api:
+          enabled: true
+          address: "0.0.0.0:8686"
+          playground: false
+        sources:
+          vector_agents:
+            type: vector
+            address: "0.0.0.0:6000"
+            version: "2"
+        sinks:
+          stdout:
+            type: console
+            inputs:
+              - vector_agents
+            encoding:
+              codec: json
+      service:
+        enabled: true
+        type: ClusterIP
+        ports:
+          - name: vector
+            port: 6000
+            protocol: TCP
+            targetPort: 6000
+  links:
+    documentation: https://vector.dev/docs
+    source: https://github.com/vectordotdev/vector
+    homepage: https://vector.dev
 ---
 {{- end }}
 {{- if .Values.optional.addons.victoriaMetrics.enabled }}
@@ -227,6 +382,80 @@ spec:
     documentation: https://www.jaegertracing.io/docs
     source: https://github.com/jaegertracing/jaeger
     homepage: https://www.jaegertracing.io
+---
+{{- end }}
+{{- if .Values.optional.addons.otelCollector.enabled }}
+apiVersion: butler.butlerlabs.dev/v1alpha1
+kind: AddonDefinition
+metadata:
+  name: otel-collector
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
+    {{- include "butler-addons.labels" . | nindent 4 }}
+spec:
+  displayName: OpenTelemetry Collector
+  description: Vendor-neutral telemetry agent for collecting traces, metrics, and logs via OTLP
+  category: observability
+  icon: "🔭"
+  platform: false
+  chart:
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+    name: opentelemetry-collector
+    defaultVersion: "0.108.0"
+    availableVersions:
+      - "0.108.0"
+      - "0.104.0"
+      - "0.100.0"
+  defaults:
+    namespace: otel
+    releaseName: otel-collector
+    createNamespace: true
+    timeout: "10m"
+    values:
+      mode: daemonset
+      image:
+        repository: otel/opentelemetry-collector-contrib
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 200m
+          memory: 128Mi
+      presets:
+        kubernetesAttributes:
+          enabled: true
+      config:
+        receivers:
+          otlp:
+            protocols:
+              grpc:
+                endpoint: "0.0.0.0:4317"
+              http:
+                endpoint: "0.0.0.0:4318"
+        processors:
+          batch:
+            timeout: 5s
+            send_batch_size: 1024
+          memory_limiter:
+            check_interval: 5s
+            limit_mib: 256
+        exporters:
+          otlp:
+            endpoint: "TRACE_ENDPOINT:4317"
+            tls:
+              insecure: true
+        service:
+          pipelines:
+            traces:
+              receivers: [otlp]
+              processors: [memory_limiter, batch]
+              exporters: [otlp]
+  links:
+    documentation: https://opentelemetry.io/docs/collector
+    source: https://github.com/open-telemetry/opentelemetry-collector
+    homepage: https://opentelemetry.io
 ---
 {{- end }}
 # =============================================================================
