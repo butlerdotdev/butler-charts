@@ -1,6 +1,22 @@
-# Butler Helm Charts
+<p align="center">
+  <img src="https://raw.githubusercontent.com/butlerdotdev/butler/main/assets/mascots/butler.png" alt="Butler" width="150"/>
+</p>
 
-Official Helm charts for [Butler](https://github.com/butlerdotdev/butler) - a Kubernetes-native multi-cluster management platform.
+<h1 align="center">Butler Helm Charts</h1>
+
+<p align="center">
+  Official Helm charts for the <a href="https://github.com/butlerdotdev/butler">Butler</a> platform.
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/butlerdotdev/butler-charts" alt="License"></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/butlerdotdev/butler">Butler</a> · <a href="https://docs.butlerlabs.dev">Docs</a> · <a href="https://butlerlabs.dev">Website</a>
+</p>
+
+---
 
 ## Overview
 
