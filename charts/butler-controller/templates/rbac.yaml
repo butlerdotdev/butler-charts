@@ -134,6 +134,17 @@ rules:
     resources: ["workspacetemplates/finalizers"]
     verbs: ["update"]
 
+  # Butler CRDs - ImageSync
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["imagesyncs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["imagesyncs/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["imagesyncs/finalizers"]
+    verbs: ["update"]
+
   - apiGroups: ["butler.butlerlabs.dev"]
     resources: ["addondefinitions"]
     verbs: ["get", "list", "watch"]
