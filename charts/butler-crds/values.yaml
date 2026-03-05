@@ -33,6 +33,8 @@ crds:
   networkPool: true
   # -- Install IPAllocation CRD (enterprise networking)
   ipAllocation: true
+  # -- Install ImageSync CRD (image registry synchronization)
+  imageSync: true
   # -- Install Workspace CRD (cloud development environments)
   workspace: true
   # -- Install WorkspaceTemplate CRD (workspace templates)

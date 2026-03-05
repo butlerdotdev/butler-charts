@@ -71,6 +71,14 @@ rules:
     resources: ["networkpools/status", "ipallocations/status"]
     verbs: ["get"]
 
+  # ImageSync - for image synchronization management
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["imagesyncs"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["imagesyncs/status"]
+    verbs: ["get"]
+
   # AddonDefinition - read for catalog display
   - apiGroups: ["butler.butlerlabs.dev"]
     resources: ["addondefinitions"]
