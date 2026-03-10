@@ -43,6 +43,8 @@ spec:
       ipam:
         mode: kubernetes
       kubeProxyReplacement: true
+      operator:
+        replicas: 1
       securityContext:
         capabilities:
           ciliumAgent:
@@ -65,8 +67,6 @@ spec:
         autoMount:
           enabled: false
         hostRoot: /sys/fs/cgroup
-      k8sServiceHost: localhost
-      k8sServicePort: 7445
   links:
     documentation: https://docs.cilium.io
     source: https://github.com/cilium/cilium

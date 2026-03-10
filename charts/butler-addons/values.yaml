@@ -76,8 +76,6 @@ platform:
       enabled: true
     metricsServer:
       enabled: true
-    flux:
-      enabled: true
 
 # =============================================================================
 # Optional Addons - Observability, Security, and Utilities
@@ -90,8 +88,6 @@ optional:
   addons:
     # Observability
     prometheus:
-      enabled: true
-    grafana:
       enabled: true
     vectorAgent:
       enabled: true

@@ -284,7 +284,7 @@ metadata:
   name: loki
   labels:
     butler.butlerlabs.dev/source: builtin
-    butler.butlerlabs.dev/category: logging
+    butler.butlerlabs.dev/category: observability
     {{- include "butler-addons.labels" . | nindent 4 }}
 spec:
   displayName: Grafana Loki
@@ -584,7 +584,7 @@ metadata:
   name: external-secrets
   labels:
     butler.butlerlabs.dev/source: builtin
-    butler.butlerlabs.dev/category: secrets
+    butler.butlerlabs.dev/category: security
     {{- include "butler-addons.labels" . | nindent 4 }}
 spec:
   displayName: External Secrets Operator
@@ -620,7 +620,7 @@ metadata:
   name: sealed-secrets
   labels:
     butler.butlerlabs.dev/source: builtin
-    butler.butlerlabs.dev/category: secrets
+    butler.butlerlabs.dev/category: security
     {{- include "butler-addons.labels" . | nindent 4 }}
 spec:
   displayName: Sealed Secrets
@@ -660,7 +660,7 @@ metadata:
 spec:
   displayName: ExternalDNS
   description: Synchronize exposed Kubernetes Services and Ingresses with DNS providers
-  category: other
+  category: dns
   icon: "🌍"
   platform: false
   chart:
@@ -698,7 +698,7 @@ metadata:
 spec:
   displayName: Istio
   description: Service mesh for observability, security, and traffic management
-  category: other
+  category: service-mesh
   icon: "🕸️"
   platform: false
   chart:
@@ -732,7 +732,7 @@ metadata:
 spec:
   displayName: Linkerd
   description: Ultralight, security-first service mesh for Kubernetes
-  category: other
+  category: service-mesh
   icon: "🔗"
   platform: false
   chart:
@@ -768,7 +768,7 @@ metadata:
 spec:
   displayName: CloudNativePG
   description: PostgreSQL operator for Kubernetes with high availability
-  category: other
+  category: database
   icon: "🐘"
   platform: false
   chart:
@@ -804,7 +804,7 @@ metadata:
 spec:
   displayName: Redis
   description: In-memory data structure store for caching and messaging
-  category: other
+  category: database
   icon: "🔴"
   platform: false
   chart:
@@ -845,7 +845,7 @@ metadata:
 spec:
   displayName: NATS
   description: High-performance messaging system for cloud native applications
-  category: other
+  category: messaging
   icon: "📬"
   platform: false
   chart:
@@ -882,7 +882,7 @@ metadata:
 spec:
   displayName: RabbitMQ
   description: Open-source message broker for reliable messaging
-  category: other
+  category: messaging
   icon: "🐰"
   platform: false
   chart:

@@ -26,6 +26,12 @@ OPTIONAL ADDONS (Observability & Utilities):
   {{- if .Values.optional.addons.prometheus.enabled }}
   - prometheus-operator   Full monitoring stack
   {{- end }}
+  {{- if .Values.optional.addons.vectorAgent.enabled }}
+  - vector-agent          Log/metric collection
+  {{- end }}
+  {{- if .Values.optional.addons.vectorAggregator.enabled }}
+  - vector-aggregator     Log/metric aggregation
+  {{- end }}
   {{- if .Values.optional.addons.victoriaMetrics.enabled }}
   - victoria-metrics      Time-series database
   {{- end }}
@@ -40,6 +46,9 @@ OPTIONAL ADDONS (Observability & Utilities):
   {{- end }}
   {{- if .Values.optional.addons.jaeger.enabled }}
   - jaeger                Distributed tracing
+  {{- end }}
+  {{- if .Values.optional.addons.otelCollector.enabled }}
+  - otel-collector        OpenTelemetry collector
   {{- end }}
   {{- if .Values.optional.addons.velero.enabled }}
   - velero                Backup and restore
