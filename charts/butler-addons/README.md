@@ -19,7 +19,7 @@ This chart installs `AddonDefinition` custom resources that define the available
 
 ```bash
 helm install butler-addons oci://ghcr.io/butlerdotdev/charts/butler-addons \
-  --version 0.1.0 \
+  --version 0.3.0 \
   -n butler-system
 ```
 
@@ -34,35 +34,40 @@ helm install butler-addons oci://ghcr.io/butlerdotdev/charts/butler-addons \
 
 ### Platform Addons
 
-| Addon | Type | Description |
-|-------|------|-------------|
-| cilium | CNI | eBPF-based networking and security |
-| longhorn | Storage | Distributed block storage |
-| metallb | LoadBalancer | Bare metal load balancer |
-| cert-manager | Certificates | Certificate management |
-| traefik | Ingress | Application proxy and ingress |
-| flux | GitOps | GitOps toolkit |
+| Addon | Category | Description |
+|-------|----------|-------------|
+| cilium | cni | eBPF-based networking and security |
+| metallb | loadbalancer | Bare metal load balancer |
+| cert-manager | certmanager | Certificate management |
+| longhorn | storage | Distributed block storage |
+| traefik | ingress | Application proxy and ingress |
+| metrics-server | observability | Resource metrics for HPA |
 
 ### Optional Addons
 
 | Addon | Category | Description |
 |-------|----------|-------------|
-| prometheus | Monitoring | Metrics and alerting |
-| grafana | Monitoring | Visualization |
-| victoria-metrics | Monitoring | Time series database |
-| loki | Logging | Log aggregation |
-| tempo | Tracing | Distributed tracing |
-| jaeger | Tracing | Distributed tracing |
-| velero | Backup | Backup and restore |
-| external-dns | DNS | DNS synchronization |
-| external-secrets | Secrets | External secrets sync |
-| sealed-secrets | Secrets | GitOps-friendly secrets |
-| istio | Service Mesh | Traffic management |
-| linkerd | Service Mesh | Ultralight service mesh |
-| cnpg | Database | PostgreSQL operator |
-| redis | Database | In-memory cache |
-| nats | Messaging | High-performance messaging |
-| rabbitmq | Messaging | Message broker |
+| prometheus-operator | observability | Full monitoring stack with Grafana |
+| vector-agent | observability | Log/metric collection |
+| vector-aggregator | observability | Log/metric aggregation |
+| victoria-metrics | observability | Time series database |
+| victoria-logs | observability | Log management |
+| loki | observability | Log aggregation |
+| tempo | observability | Distributed tracing |
+| jaeger | observability | Distributed tracing |
+| otel-collector | observability | OpenTelemetry collector |
+| velero | backup | Backup and restore |
+| flux | gitops | GitOps toolkit |
+| argocd | gitops | GitOps continuous delivery |
+| external-secrets | security | External secrets sync |
+| sealed-secrets | security | GitOps-friendly secrets |
+| external-dns | dns | DNS synchronization |
+| istio | service-mesh | Traffic management |
+| linkerd | service-mesh | Ultralight service mesh |
+| cnpg | database | PostgreSQL operator |
+| redis | database | In-memory cache |
+| nats | messaging | High-performance messaging |
+| rabbitmq | messaging | Message broker |
 
 ## Customization
 
@@ -73,8 +78,8 @@ helm install butler-addons oci://ghcr.io/butlerdotdev/charts/butler-addons \
 platform:
   enabled: true
   addons:
-    flux:
-      enabled: false  # Disable Flux
+    metricsServer:
+      enabled: false  # Disable Metrics Server
 
 optional:
   enabled: true
@@ -112,7 +117,7 @@ metadata:
 spec:
   clusterRef:
     name: my-cluster
-  addon: prometheus
+  addon: prometheus-operator
   values:
     prometheus:
       prometheusSpec:
@@ -128,37 +133,42 @@ apiVersion: butler.butlerlabs.dev/v1alpha1
 kind: AddonDefinition
 metadata:
   name: example-addon
+  labels:
+    butler.butlerlabs.dev/source: builtin
+    butler.butlerlabs.dev/category: observability
 spec:
-  name: example-addon
   displayName: Example Addon
-  description: Description of the addon
-  category: observability
-  type: monitoring
-  icon: https://example.com/icon.svg
-  maintainer: Example Inc
-  documentationURL: https://example.com/docs
+  description: Description of what the addon provides
+  category: observability  # cni|loadbalancer|storage|certmanager|ingress|observability|backup|gitops|security|dns|database|messaging|service-mesh|other
+  icon: "📈"
+  platform: false
+  dependsOn:
+    - cilium
   chart:
     repository: https://charts.example.com
     name: example
-    version: "1.0.0"
+    defaultVersion: "1.0.0"
+    availableVersions:
+      - "1.0.0"
+      - "0.9.0"
+  defaults:
     namespace: example-system
-  defaultValues:
-    key: value
-  configurableValues:
-    - path: replicaCount
-      description: Number of replicas
-      type: integer
-      default: 1
-  constraints:
-    singleton: true
-    scope: tenant  # tenant, management, or both
+    releaseName: example
+    createNamespace: true
+    timeout: "10m"
+    values:
+      key: value
+  links:
+    documentation: https://example.com/docs
+    source: https://github.com/example/example
+    homepage: https://example.com
 ```
 
 ## Upgrading
 
 ```bash
 helm upgrade butler-addons oci://ghcr.io/butlerdotdev/charts/butler-addons \
-  --version 0.2.0 \
+  --version 0.3.0 \
   -n butler-system
 ```
 
