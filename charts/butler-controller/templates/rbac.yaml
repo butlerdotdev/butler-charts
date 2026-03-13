@@ -157,17 +157,17 @@ rules:
     resources: ["clusters/status", "machines/status"]
     verbs: ["get", "update", "patch"]
   
-  # Kamaji control plane provider
+  # Steward control plane provider
   - apiGroups: ["controlplane.cluster.x-k8s.io"]
-    resources: ["kamajicontrolplanes"]
+    resources: ["stewardcontrolplanes"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
   - apiGroups: ["controlplane.cluster.x-k8s.io"]
-    resources: ["kamajicontrolplanes/status"]
+    resources: ["stewardcontrolplanes/status"]
     verbs: ["get", "update", "patch"]
-  - apiGroups: ["kamaji.clastix.io"]
+  - apiGroups: ["steward.butlerlabs.dev"]
     resources: ["tenantcontrolplanes"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-  - apiGroups: ["kamaji.clastix.io"]
+  - apiGroups: ["steward.butlerlabs.dev"]
     resources: ["tenantcontrolplanes/status"]
     verbs: ["get", "watch"]
 

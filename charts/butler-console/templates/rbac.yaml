@@ -89,8 +89,8 @@ rules:
     resources: ["clusters", "machines", "machinedeployments"]
     verbs: ["get", "list", "watch"]
   
-  # Kamaji TenantControlPlane - read for status, patch for rotation tracking annotations
-  - apiGroups: ["kamaji.clastix.io"]
+  # Steward TenantControlPlane - read for status, patch for rotation tracking annotations
+  - apiGroups: ["steward.butlerlabs.dev"]
     resources: ["tenantcontrolplanes"]
     verbs: ["get", "list", "watch", "patch"]
 ---
@@ -109,32 +109,32 @@ subjects:
     name: {{ include "butler-console.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
 ---
-# Role for restarting Kamaji deployment during certificate rotation
+# Role for restarting Steward deployment during certificate rotation
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ include "butler-console.fullname" . }}-kamaji-restart
-  namespace: kamaji-system
+  name: {{ include "butler-console.fullname" . }}-steward-restart
+  namespace: steward-system
   labels:
     {{- include "butler-console.labels" . | nindent 4 }}
 rules:
-  # Allow patching Kamaji deployment to trigger rollout restart
+  # Allow patching Steward deployment to trigger rollout restart
   - apiGroups: ["apps"]
     resources: ["deployments"]
-    resourceNames: ["kamaji"]
+    resourceNames: ["steward"]
     verbs: ["get", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ include "butler-console.fullname" . }}-kamaji-restart
-  namespace: kamaji-system
+  name: {{ include "butler-console.fullname" . }}-steward-restart
+  namespace: steward-system
   labels:
     {{- include "butler-console.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ include "butler-console.fullname" . }}-kamaji-restart
+  name: {{ include "butler-console.fullname" . }}-steward-restart
 subjects:
   - kind: ServiceAccount
     name: {{ include "butler-console.serviceAccountName" . }}
