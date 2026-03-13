@@ -35,6 +35,8 @@ crds:
   ipAllocation: true
   # -- Install ImageSync CRD (image registry synchronization)
   imageSync: true
+  # -- Install LoadBalancerRequest CRD (cloud load balancer provisioning)
+  loadBalancerRequest: true
   # -- Install Workspace CRD (cloud development environments)
   workspace: true
   # -- Install WorkspaceTemplate CRD (workspace templates)

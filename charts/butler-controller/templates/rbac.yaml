@@ -145,6 +145,17 @@ rules:
     resources: ["imagesyncs/finalizers"]
     verbs: ["update"]
 
+  # Butler CRDs - LoadBalancerRequest
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["loadbalancerrequests"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["loadbalancerrequests/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["loadbalancerrequests/finalizers"]
+    verbs: ["update"]
+
   - apiGroups: ["butler.butlerlabs.dev"]
     resources: ["addondefinitions"]
     verbs: ["get", "list", "watch"]

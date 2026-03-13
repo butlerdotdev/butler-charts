@@ -79,6 +79,14 @@ rules:
     resources: ["imagesyncs/status"]
     verbs: ["get"]
 
+  # LoadBalancerRequest - read for cloud bootstrap status
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["loadbalancerrequests"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["loadbalancerrequests/status"]
+    verbs: ["get"]
+
   # AddonDefinition - read for catalog display
   - apiGroups: ["butler.butlerlabs.dev"]
     resources: ["addondefinitions"]

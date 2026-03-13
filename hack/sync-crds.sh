@@ -24,6 +24,7 @@ declare -a CRD_MAPPINGS=(
     "butler.butlerlabs.dev_identityproviders.yaml:identityProvider:identityprovider-crd.yaml"
     "butler.butlerlabs.dev_imagesyncs.yaml:imageSync:imagesync-crd.yaml"
     "butler.butlerlabs.dev_ipallocations.yaml:ipAllocation:ipallocation-crd.yaml"
+    "butler.butlerlabs.dev_loadbalancerrequests.yaml:loadBalancerRequest:loadbalancerrequest-crd.yaml"
     "butler.butlerlabs.dev_machinerequests.yaml:machineRequest:machinerequest-crd.yaml"
     "butler.butlerlabs.dev_managementaddons.yaml:managementAddon:managementaddon-crd.yaml"
     "butler.butlerlabs.dev_networkpools.yaml:networkPool:networkpool-crd.yaml"
