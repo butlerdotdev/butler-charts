@@ -1,8 +1,8 @@
 {{/*
 AUTO-GENERATED FROM butler-api - DO NOT EDIT
-Source: config/crd/bases/butler.butlerlabs.dev_imagesyncs.yaml
+Source: config/crd/bases/butler.butlerlabs.dev_loadbalancerrequests.yaml
 */}}
-{{- if .Values.crds.imageSync }}
+{{- if .Values.crds.loadBalancerRequest }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -12,40 +12,35 @@ metadata:
     {{- include "butler-crds.annotations" . | nindent 4 }}
   labels:
     {{- include "butler-crds.labels" . | nindent 4 }}
-  name: imagesyncs.butler.butlerlabs.dev
+  name: loadbalancerrequests.butler.butlerlabs.dev
 spec:
   group: butler.butlerlabs.dev
   names:
-    kind: ImageSync
-    listKind: ImageSyncList
-    plural: imagesyncs
+    kind: LoadBalancerRequest
+    listKind: LoadBalancerRequestList
+    plural: loadbalancerrequests
     shortNames:
-    - is
-    singular: imagesync
+    - lbr
+    singular: loadbalancerrequest
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - description: Sync phase
+    - description: Target cluster
+      jsonPath: .spec.clusterName
+      name: Cluster
+      type: string
+    - description: Current phase
       jsonPath: .status.phase
       name: Phase
       type: string
-    - description: Schematic ID
-      jsonPath: .spec.factoryRef.schematicID
-      name: Schematic
-      priority: 1
+    - description: LB endpoint
+      jsonPath: .status.endpoint
+      name: Endpoint
       type: string
-    - description: OS version
-      jsonPath: .spec.factoryRef.version
-      name: Version
-      type: string
-    - description: Target provider
-      jsonPath: .spec.providerConfigRef.name
-      name: Provider
-      type: string
-    - description: Provider image reference
-      jsonPath: .status.providerImageRef
-      name: Image Ref
-      type: string
+    - description: Registered backends
+      jsonPath: .status.registeredTargets
+      name: Targets
+      type: integer
     - jsonPath: .metadata.creationTimestamp
       name: Age
       type: date
@@ -53,9 +48,11 @@ spec:
     schema:
       openAPIV3Schema:
         description: |-
-          ImageSync is the Schema for the imagesyncs API.
-          It represents a request to sync an image from the Butler Image Factory
-          to an infrastructure provider.
+          LoadBalancerRequest is the Schema for the loadbalancerrequests API.
+          It represents a request to create a cloud load balancer for a management
+          cluster's control plane endpoint. Provider controllers watch this resource
+          and provision the appropriate cloud-native load balancer (GCP forwarding rule,
+          AWS NLB, or Azure Standard LB).
         properties:
           apiVersion:
             description: |-
@@ -75,49 +72,37 @@ spec:
           metadata:
             type: object
           spec:
-            description: ImageSyncSpec defines the desired state of ImageSync.
+            description: |-
+              LoadBalancerRequestSpec defines the desired state of a cloud load balancer
+              for a management cluster control plane endpoint.
             properties:
-              displayName:
+              clusterName:
                 description: |-
-                  DisplayName is the human-readable name for the image on the provider.
-                  If not set, auto-generated from OS type + version + schematic ID prefix.
+                  ClusterName is the name of the cluster this load balancer serves.
+                  Used as a prefix for cloud resource naming. Must be DNS-safe since
+                  cloud providers use it in resource names.
+                maxLength: 63
+                minLength: 1
+                pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
                 type: string
-              factoryRef:
-                description: FactoryRef identifies the image in Butler Image Factory.
-                properties:
-                  arch:
-                    default: amd64
-                    description: Arch is the CPU architecture.
-                    enum:
-                    - amd64
-                    - arm64
-                    type: string
-                  platform:
-                    default: nocloud
-                    description: |-
-                      Platform is the target platform for the image artifact.
-                      Maps to the Talos Image Factory platform identifier (e.g., "nocloud", "metal", "vmware").
-                      Defaults to "nocloud" which works for KubeVirt/cloud-init environments (Harvester, Nutanix).
-                    type: string
-                  schematicID:
-                    description: SchematicID is the content-addressable schematic
-                      identifier (SHA-256 hex).
-                    minLength: 8
-                    type: string
-                  version:
-                    description: Version is the OS version (e.g., "v1.12.4", "9.5").
-                    type: string
-                required:
-                - schematicID
-                - version
-                type: object
-              format:
-                default: qcow2
-                description: Format is the image format to sync (e.g., "qcow2", "raw",
-                  "iso").
-                type: string
+              healthCheckPort:
+                description: |-
+                  HealthCheckPort is the port used for backend health checks.
+                  Defaults to the same value as Port.
+                format: int32
+                maximum: 65535
+                minimum: 1
+                type: integer
+              port:
+                default: 6443
+                description: Port is the target port on backend instances.
+                format: int32
+                maximum: 65535
+                minimum: 1
+                type: integer
               providerConfigRef:
-                description: ProviderConfigRef references the target ProviderConfig.
+                description: ProviderConfigRef references the ProviderConfig with
+                  cloud credentials.
                 properties:
                   name:
                     description: Name is the name of the ProviderConfig resource.
@@ -131,31 +116,44 @@ spec:
                 required:
                 - name
                 type: object
-              transferMode:
-                default: direct
+              targets:
                 description: |-
-                  TransferMode controls how the image artifact is transferred to the provider.
-                  "direct" means the provider downloads directly from the factory URL.
-                  "proxy" means the provider controller downloads first, then uploads to the provider.
-                enum:
-                - direct
-                - proxy
-                type: string
+                  Targets are the backend instances to register with the load balancer.
+                  Updated incrementally as machines come online.
+                items:
+                  description: LoadBalancerTarget identifies a backend instance for
+                    load balancer registration.
+                  properties:
+                    instanceID:
+                      description: |-
+                        InstanceID is the cloud-provider instance identifier.
+                        Used for instance-based target groups (e.g., AWS NLB).
+                      type: string
+                    instanceName:
+                      description: |-
+                        InstanceName is the cloud-provider instance name.
+                        Used for name-based registration (e.g., GCP target pools).
+                      type: string
+                    ip:
+                      description: IP is the target IP address.
+                      type: string
+                  type: object
+                type: array
             required:
-            - factoryRef
+            - clusterName
             - providerConfigRef
             type: object
+            x-kubernetes-validations:
+            - message: clusterName is immutable
+              rule: self.clusterName == oldSelf.clusterName
+            - message: providerConfigRef is immutable
+              rule: self.providerConfigRef == oldSelf.providerConfigRef
           status:
-            description: ImageSyncStatus defines the observed state of ImageSync.
+            description: LoadBalancerRequestStatus defines the observed state of LoadBalancerRequest.
             properties:
-              artifactSHA256:
-                description: ArtifactSHA256 is the verified checksum.
-                type: string
-              artifactURL:
-                description: ArtifactURL is the factory download URL used.
-                type: string
               conditions:
-                description: Conditions represent the latest available observations.
+                description: Conditions represent the latest available observations
+                  of the request's state.
                 items:
                   description: Condition contains details for one aspect of the current
                     state of this API Resource.
@@ -214,6 +212,11 @@ spec:
                 x-kubernetes-list-map-keys:
                 - type
                 x-kubernetes-list-type: map
+              endpoint:
+                description: |-
+                  Endpoint is the load balancer's IP address or DNS name.
+                  Populated when Phase reaches Ready.
+                type: string
               failureMessage:
                 description: FailureMessage provides a human-readable failure message.
                 type: string
@@ -233,21 +236,20 @@ spec:
                 description: Phase represents the current lifecycle phase.
                 enum:
                 - Pending
-                - Building
-                - Downloading
-                - Uploading
+                - Creating
                 - Ready
                 - Failed
+                - Deleting
                 type: string
-              providerImageRef:
+              registeredTargets:
+                description: RegisteredTargets is the number of targets currently
+                  registered with the load balancer.
+                format: int32
+                type: integer
+              resourceID:
                 description: |-
-                  ProviderImageRef is the provider-specific image reference once synced.
-                  Harvester: "namespace/name", Nutanix: UUID, Proxmox: template ID.
-                type: string
-              providerTaskID:
-                description: |-
-                  ProviderTaskID tracks a provider-side async task (e.g., Nutanix Prism Central task UUID).
-                  Set during Downloading/Uploading phases, cleared on completion or failure.
+                  ResourceID is the cloud-provider resource identifier for the load balancer.
+                  Used during cleanup to locate the resource for deletion.
                 type: string
             type: object
         type: object
