@@ -81,6 +81,8 @@ controller:
   healthProbeBindAddress: ":8081"
   # -- Webhook server port
   webhookPort: 9443
+  # -- Enable Steward integration controllers (StewardSecret, StewardStatus)
+  enableStewardControllers: true
   # -- Enable webhooks
   webhooksEnabled: false
   # -- Concurrent reconciles for TenantCluster

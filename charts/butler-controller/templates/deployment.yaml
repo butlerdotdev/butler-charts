@@ -53,7 +53,7 @@ spec:
             {{- if eq .Values.controller.logFormat "json" }}
             - --zap-encoder=json
             {{- end }}
-            - --enable-kamaji-controllers={{ .Values.controller.enableKamajiControllers | default true }}
+            - --enable-steward-controllers={{ .Values.controller.enableStewardControllers | default true }}
             - --enable-webhooks={{ .Values.controller.webhooksEnabled }}
           env:
             - name: POD_NAMESPACE
