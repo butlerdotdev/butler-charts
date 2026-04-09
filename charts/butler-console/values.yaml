@@ -105,6 +105,14 @@ server:
       # -- Key in existingSecret containing the admin password
       existingSecretKey: "admin-password"
 
+  # CLI device flow authentication (ADR-016)
+  cliAuth:
+    # -- Enable CLI device flow auth endpoints and RBAC
+    enabled: true
+    # -- External Kubernetes API server URL for CLI kubeconfigs.
+    # Required when butler-server runs in-cluster.
+    externalAPIURL: ""
+
   # OIDC authentication configuration
   oidc:
     # -- Enable OIDC authentication

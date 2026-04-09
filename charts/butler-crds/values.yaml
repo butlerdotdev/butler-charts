@@ -42,6 +42,11 @@ crds:
   # -- Install WorkspaceTemplate CRD (workspace templates)
   workspaceTemplate: true
 
+# -- CLI authentication RBAC
+cliAuth:
+  # -- Install ClusterRoles for CLI device flow authentication (ADR-016)
+  enabled: true
+
 # -- Keep CRDs on chart uninstall (recommended for production)
 # Setting this to true adds the "helm.sh/resource-policy: keep" annotation
 keep: true

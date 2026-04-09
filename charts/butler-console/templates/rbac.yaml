@@ -131,6 +131,49 @@ rules:
     resources: ["deployments"]
     resourceNames: ["steward"]
     verbs: ["get", "patch"]
+{{- if .Values.server.cliAuth.enabled }}
+---
+# CLI device flow authentication requires managing ServiceAccounts and RBAC.
+# The server creates per-user SAs with team-scoped RoleBindings when users
+# authenticate via the device flow. This ClusterRole grants the server
+# permission to create/manage those SAs and bindings, and holds all
+# Butler CRD permissions that the CLI ClusterRoles can grant (required by
+# Kubernetes RBAC escalation prevention).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "butler-console.fullname" . }}-cli-auth
+  labels:
+    {{- include "butler-console.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["serviceaccounts", "serviceaccounts/token"]
+    verbs: ["get", "list", "create", "update", "patch", "delete"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["rolebindings", "clusterrolebindings"]
+    verbs: ["get", "list", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["namespaces", "secrets", "events"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "butler-console.fullname" . }}-cli-auth
+  labels:
+    {{- include "butler-console.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "butler-console.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ include "butler-console.fullname" . }}-cli-auth
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

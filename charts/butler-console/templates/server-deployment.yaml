@@ -154,6 +154,14 @@ spec:
             - name: BUTLER_OIDC_EMAIL_CLAIM
               value: {{ .Values.server.oidc.emailClaim | quote }}
             {{- end }}
+            {{- if .Values.server.cliAuth.enabled }}
+            - name: BUTLER_CLI_AUTH_ENABLED
+              value: "true"
+            {{- if .Values.server.cliAuth.externalAPIURL }}
+            - name: BUTLER_CLI_EXTERNAL_API_URL
+              value: {{ .Values.server.cliAuth.externalAPIURL | quote }}
+            {{- end }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /healthz

@@ -1,0 +1,119 @@
+{{- if .Values.cliAuth.enabled }}
+# ClusterRoles for CLI device flow authentication (ADR-016).
+# These define the permission sets for Butler CLI users authenticated
+# via the device flow. RoleBindings are created dynamically by
+# butler-server when a user authenticates.
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: butler-cli-admin
+  labels:
+    {{- include "butler-crds.labels" . | nindent 4 }}
+    butler.butlerlabs.dev/cli-role: admin
+rules:
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources:
+      - tenantclusters
+      - tenantaddons
+      - providerconfigs
+      - ipallocations
+      - networkpools
+      - imagesyncs
+      - workspaces
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: butler-cli-operator
+  labels:
+    {{- include "butler-crds.labels" . | nindent 4 }}
+    butler.butlerlabs.dev/cli-role: operator
+rules:
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources:
+      - tenantclusters
+      - tenantaddons
+      - imagesyncs
+      - workspaces
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources:
+      - providerconfigs
+      - ipallocations
+      - networkpools
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: butler-cli-viewer
+  labels:
+    {{- include "butler-crds.labels" . | nindent 4 }}
+    butler.butlerlabs.dev/cli-role: viewer
+rules:
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources:
+      - tenantclusters
+      - tenantaddons
+      - providerconfigs
+      - ipallocations
+      - networkpools
+      - imagesyncs
+      - workspaces
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: butler-cli-platform-admin
+  labels:
+    {{- include "butler-crds.labels" . | nindent 4 }}
+    butler.butlerlabs.dev/cli-role: platform-admin
+rules:
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources:
+      - butlerconfigs
+      - teams
+      - users
+      - identityproviders
+      - addondefinitions
+      - managementaddons
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources:
+      - tenantclusters
+      - tenantaddons
+      - providerconfigs
+      - ipallocations
+      - networkpools
+      - imagesyncs
+      - workspaces
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["namespaces", "secrets", "events"]
+    verbs: ["get", "list", "watch"]
+{{- end }}
