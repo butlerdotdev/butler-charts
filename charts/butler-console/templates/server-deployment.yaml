@@ -87,6 +87,8 @@ spec:
             {{- end }}
             - name: BUTLER_SECURE_COOKIES
               value: {{ .Values.server.auth.secureCookies | quote }}
+            - name: BUTLER_TRUST_PROXY_HEADERS
+              value: {{ .Values.server.auth.trustProxyHeaders | default false | quote }}
 
             # Platform Admin auth (bootstrap admin)
             {{- if .Values.server.auth.platform.enabled }}
