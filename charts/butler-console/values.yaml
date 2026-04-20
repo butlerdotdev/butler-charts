@@ -87,6 +87,15 @@ server:
     # -- Enable secure cookies (should be true in production with HTTPS)
     secureCookies: false
 
+    # -- Honor X-Forwarded-Proto and X-Forwarded-Host when deriving the server's
+    # public URL. Set true only when a trusted ingress or load balancer strips
+    # client-supplied values and replaces them. Typical Kubernetes deployments
+    # behind a TLS-terminating ingress (Traefik, nginx-ingress, Envoy) want
+    # this set to true so emitted URLs reflect the external https origin.
+    # Without it, the server sees plain HTTP after TLS termination and
+    # emits http:// URLs.
+    trustProxyHeaders: false
+
     # Platform Admin auth (bootstrap admin for initial setup)
     platform:
       # -- Enable bootstrap admin authentication
