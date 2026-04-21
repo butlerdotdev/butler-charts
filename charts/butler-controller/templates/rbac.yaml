@@ -195,6 +195,15 @@ rules:
   - apiGroups: ["coordination.k8s.io"]
     resources: ["leases"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+  # SubjectAccessReview for the Team admission webhook's platform-admin
+  # fallback path. When an admission request arrives from a caller with
+  # no matching User CRD, the webhook submits a SAR against
+  # butler.butlerlabs.dev/teams to determine whether the caller holds
+  # the butler-cli-platform-admin ClusterRole.
+  - apiGroups: ["authorization.k8s.io"]
+    resources: ["subjectaccessreviews"]
+    verbs: ["create"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
