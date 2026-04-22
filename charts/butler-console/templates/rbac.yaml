@@ -101,6 +101,17 @@ rules:
   - apiGroups: ["steward.butlerlabs.dev"]
     resources: ["tenantcontrolplanes"]
     verbs: ["get", "list", "watch", "patch"]
+
+  # Impersonation for butler-server's apiserver-mutation path (ADR-010).
+  # The server forwards the authenticated end-user's identity to the
+  # apiserver so admission webhooks on Team and TenantCluster (ADR-009)
+  # observe the real caller for platform-admin / team-admin gates and
+  # creator-email annotation identity matching. Scoped to the fixed
+  # "butler-api-users" group the server always sends plus the user
+  # itself.
+  - apiGroups: [""]
+    resources: ["users", "groups"]
+    verbs: ["impersonate"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -191,3 +202,52 @@ subjects:
     name: {{ include "butler-console.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
 {{- end }}
+---
+# butler-api-users (ADR-010): the synthetic group butler-server
+# attaches to Impersonate-Group on every user-mutation call. Binding
+# the baseline RBAC users need to this group gives every
+# butler-server-impersonated caller enough apiserver access to
+# perform webhook-gated mutations, while the Butler admission webhook
+# still enforces fine-grained authorization (team admin vs operator
+# vs viewer) on the specific fields.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: butler-api-users
+  labels:
+    {{- include "butler-console.labels" . | nindent 4 }}
+rules:
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources:
+      - teams
+      - tenantclusters
+      - tenantaddons
+      - providerconfigs
+      - workspaces
+      - workspacetemplates
+      - ipallocations
+      - networkpools
+      - identityproviders
+      - users
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["namespaces", "secrets", "events", "configmaps"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["rolebindings"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: butler-api-users
+  labels:
+    {{- include "butler-console.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: butler-api-users
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: butler-api-users
