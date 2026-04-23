@@ -101,6 +101,16 @@ rules:
   - apiGroups: ["apps"]
     resources: ["deployments"]
     verbs: ["get", "list", "watch"]
+
+  # Flux bootstrap config readback for the Management GitOps export modal.
+  # detectFlux reads GitRepository and Kustomization in flux-system to
+  # populate Repository/Branch/Path on GitOpsEngineStatus so the UI pre-fills.
+  - apiGroups: ["source.toolkit.fluxcd.io"]
+    resources: ["gitrepositories"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["kustomize.toolkit.fluxcd.io"]
+    resources: ["kustomizations"]
+    verbs: ["get", "list", "watch"]
   
   # Steward TenantControlPlane - read for status, patch for rotation tracking annotations
   - apiGroups: ["steward.butlerlabs.dev"]
