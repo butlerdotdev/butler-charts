@@ -49,6 +49,26 @@ webhooks:
         resources:
           - tenantclusters
     sideEffects: None
+  - name: vteam.kb.io
+    admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "butler-controller.fullname" . }}-webhook
+        namespace: {{ .Release.Namespace }}
+        path: /validate-butler-butlerlabs-dev-v1alpha1-team
+    failurePolicy: Fail
+    rules:
+      - apiGroups:
+          - butler.butlerlabs.dev
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - teams
+    sideEffects: None
   - name: vnetworkpool.kb.io
     admissionReviewVersions:
       - v1
