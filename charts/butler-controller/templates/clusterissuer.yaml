@@ -1,0 +1,20 @@
+{{/*
+Copyright 2026 The Butler Authors.
+SPDX-License-Identifier: Apache-2.0
+*/}}
+{{/*
+Optional self-signed ClusterIssuer for the webhook Certificate. Gated by
+certManager.installSelfSignedIssuer so operators with an existing issuer
+keep their own; clusters without one can enable this together with
+controller.webhooksEnabled for a self-contained deployment.
+*/}}
+{{- if and .Values.controller.webhooksEnabled .Values.certManager.installSelfSignedIssuer }}
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned-issuer
+  labels:
+    {{- include "butler-controller.labels" . | nindent 4 }}
+spec:
+  selfSigned: {}
+{{- end }}
