@@ -96,6 +96,11 @@ rules:
   - apiGroups: ["cluster.x-k8s.io"]
     resources: ["clusters", "machines", "machinedeployments"]
     verbs: ["get", "list", "watch"]
+
+  # Flux detection calls List on Deployments in flux-system to determine GitOps engine presence.
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch"]
   
   # Steward TenantControlPlane - read for status, patch for rotation tracking annotations
   - apiGroups: ["steward.butlerlabs.dev"]
