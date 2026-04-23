@@ -95,6 +95,11 @@ certManager:
   issuerRef: {}
   # kind: ClusterIssuer
   # name: letsencrypt-prod
+  # -- Install a self-signed ClusterIssuer named "selfsigned-issuer"
+  # when webhooks are enabled. Useful for clusters that do not have one
+  # provisioned by the platform bootstrap. Harmless when a separate
+  # issuerRef is set (the chart-provisioned issuer is unused).
+  installSelfSignedIssuer: false
 
 # Leader election configuration
 leaderElection:
