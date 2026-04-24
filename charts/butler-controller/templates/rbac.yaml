@@ -27,6 +27,13 @@ rules:
   - apiGroups: ["rbac.authorization.k8s.io"]
     resources: ["roles", "rolebindings"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # RBAC escalation: bind allows creating RoleBindings that reference
+  # these named ClusterRoles. Required because the Team and TenantCluster
+  # reconcilers create RoleBindings for cluster-admin, admin, edit, and view.
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["clusterroles"]
+    verbs: ["bind"]
+    resourceNames: ["cluster-admin", "admin", "edit", "view"]
   - apiGroups: [""]
     resources: ["services"]
     verbs: ["get", "list", "watch"]
