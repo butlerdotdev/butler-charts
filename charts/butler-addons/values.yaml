@@ -33,6 +33,14 @@ config:
   #   cilium: "1.17.0"
   #   metallb: "0.14.9"
 
+  # -- Default NTP servers for Talos worker nodes (optional).
+  # Used as fallback if a TenantCluster or ProviderConfig doesn't
+  # specify time servers explicitly. Leave unset to fall through
+  # to pool.ntp.org (which may not be reachable in restricted
+  # networks).
+  # defaultTimeServers:
+  #   - ntp.example.com
+
   # Bootstrap Platform Admin User
   # Creates a User CRD so the admin appears in the Users page
   bootstrapAdmin:

@@ -27,4 +27,8 @@ spec:
   defaultAddonVersions:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- with .Values.config.defaultTimeServers }}
+  defaultTimeServers:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 {{- end }}
