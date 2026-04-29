@@ -93,8 +93,10 @@ controller:
   enableStewardControllers: true
   # -- Enable webhooks
   webhooksEnabled: false
-  # -- Concurrent reconciles for TenantCluster
-  concurrentReconciles: 5
+  # -- Max concurrent TenantCluster reconciles
+  concurrentReconciles: 10
+  # -- Max concurrent TenantAddon reconciles
+  concurrentAddonReconciles: 6
 
 # cert-manager configuration for webhook TLS
 certManager:
