@@ -2,7 +2,7 @@
 # TenantCluster lifecycle controller for multi-cluster management
 
 # -- Number of controller replicas
-replicaCount: 1
+replicaCount: 2
 
 image:
   # -- Image repository
@@ -64,7 +64,15 @@ nodeSelector: {}
 tolerations: []
 
 # -- Affinity rules
-affinity: {}
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: butler-controller
+          topologyKey: kubernetes.io/hostname
 
 # -- Topology spread constraints
 topologySpreadConstraints: []
@@ -143,7 +151,7 @@ metrics:
 # Pod disruption budget
 podDisruptionBudget:
   # -- Enable PDB
-  enabled: false
+  enabled: true
   # -- Minimum available pods
   minAvailable: 1
   # -- Maximum unavailable pods (mutually exclusive with minAvailable)
