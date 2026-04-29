@@ -55,6 +55,8 @@ spec:
             {{- end }}
             - --enable-steward-controllers={{ .Values.controller.enableStewardControllers | default true }}
             - --enable-webhooks={{ .Values.controller.webhooksEnabled }}
+            - --max-concurrent-tc-reconciles={{ .Values.controller.concurrentReconciles }}
+            - --max-concurrent-addon-reconciles={{ .Values.controller.concurrentAddonReconciles }}
           env:
             - name: POD_NAMESPACE
               valueFrom:
