@@ -21,6 +21,7 @@ spec:
   description: Full monitoring stack with Prometheus, Alertmanager, and Grafana dashboards
   category: observability
   icon: "🔥"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cGF0aCBkPSJNMTIgMjJjLTQgMC03LTMtNy04IDAtNCAzLTcgNS0xMCAxLTEuNSAyLTMgMi0zczEgMS41IDIgM2MyIDMgNSA2IDUgMTAgMCA1LTMgOC03IDh6Ii8+CiAgPHBhdGggZD0iTTEyIDIyYy0xLjUgMC0zLTEuNS0zLTRzMS41LTQgMy02YzEuNSAyIDMgMyAzIDZzLTEuNSA0LTMgNHoiLz4KPC9zdmc+Cg=="
   platform: false
   tier: infrastructure
   chart:
@@ -94,6 +95,7 @@ spec:
   description: Lightweight log and metric collector for shipping data to a centralized pipeline
   category: observability
   icon: "📡"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8bGluZSB4MT0iNSIgeTE9IjE5IiB4Mj0iMTkiIHkyPSI1Ii8+CiAgPHBvbHlsaW5lIHBvaW50cz0iMTMsNSAxOSw1IDE5LDExIi8+CiAgPGxpbmUgeDE9IjUiIHkxPSIxMiIgeDI9IjUiIHkyPSIxOSIvPgogIDxsaW5lIHgxPSI1IiB5MT0iMTkiIHgyPSIxMiIgeTI9IjE5Ii8+Cjwvc3ZnPgo="
   platform: false
   chart:
     repository: https://helm.vector.dev
@@ -157,6 +159,7 @@ spec:
   description: Centralized log and metric aggregation service for the observability pipeline
   category: observability
   icon: "📊"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8bGluZSB4MT0iNCIgeTE9IjQiIHgyPSIxMiIgeTI9IjEyIi8+CiAgPGxpbmUgeDE9IjIwIiB5MT0iNCIgeDI9IjEyIiB5Mj0iMTIiLz4KICA8bGluZSB4MT0iNCIgeTE9IjIwIiB4Mj0iMTIiIHkyPSIxMiIvPgogIDxsaW5lIHgxPSIxMiIgeTE9IjEyIiB4Mj0iMjAiIHkyPSIxNiIvPgogIDxwb2x5bGluZSBwb2ludHM9IjE2LDE2IDIwLDE2IDIwLDEyIi8+CiAgPGNpcmNsZSBjeD0iNCIgY3k9IjQiIHI9IjEuNSIvPgogIDxjaXJjbGUgY3g9IjIwIiBjeT0iNCIgcj0iMS41Ii8+CiAgPGNpcmNsZSBjeD0iNCIgY3k9IjIwIiByPSIxLjUiLz4KPC9zdmc+Cg=="
   platform: false
   chart:
     repository: https://helm.vector.dev
@@ -227,6 +230,7 @@ spec:
   description: Fast, cost-effective, and scalable time-series database for metrics
   category: observability
   icon: "📊"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cG9seWxpbmUgcG9pbnRzPSIzLDE4IDcsMTQgMTEsMTYgMTUsOCAxOSwxMCAyMSw2Ii8+CiAgPGNpcmNsZSBjeD0iNyIgY3k9IjE0IiByPSIxLjUiLz4KICA8Y2lyY2xlIGN4PSIxNSIgY3k9IjgiIHI9IjEuNSIvPgogIDxjaXJjbGUgY3g9IjIxIiBjeT0iNiIgcj0iMS41Ii8+CiAgPGxpbmUgeDE9IjMiIHkxPSIyMSIgeDI9IjIxIiB5Mj0iMjEiLz4KPC9zdmc+Cg=="
   platform: false
   chart:
     repository: https://victoriametrics.github.io/helm-charts
@@ -260,6 +264,7 @@ spec:
   description: High-performance log management and analysis solution
   category: observability
   icon: "📝"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cmVjdCB4PSI0IiB5PSIzIiB3aWR0aD0iMTYiIGhlaWdodD0iMTgiIHJ4PSIyIi8+CiAgPGxpbmUgeDE9IjgiIHkxPSI4IiB4Mj0iMTYiIHkyPSI4Ii8+CiAgPGxpbmUgeDE9IjgiIHkxPSIxMiIgeDI9IjE0IiB5Mj0iMTIiLz4KICA8bGluZSB4MT0iOCIgeTE9IjE2IiB4Mj0iMTIiIHkyPSIxNiIvPgo8L3N2Zz4K"
   platform: false
   chart:
     repository: https://victoriametrics.github.io/helm-charts
@@ -292,6 +297,7 @@ spec:
   description: Horizontally-scalable, highly-available log aggregation system
   category: observability
   icon: "📋"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cGF0aCBkPSJNNCA1aDE2TTQgOWgxMk00IDEzaDE0TTQgMTdoMTAiLz4KICA8Y2lyY2xlIGN4PSIxOSIgY3k9IjE1IiByPSI0Ii8+CiAgPGxpbmUgeDE9IjE5IiB5MT0iMTMiIHgyPSIxOSIgeTI9IjE3Ii8+CiAgPGxpbmUgeDE9IjE3IiB5MT0iMTUiIHgyPSIyMSIgeTI9IjE1Ii8+Cjwvc3ZnPgo="
   platform: false
   chart:
     repository: https://grafana.github.io/helm-charts
@@ -332,6 +338,7 @@ spec:
   description: Distributed tracing backend for high-scale request flow analysis
   category: observability
   icon: "🔍"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSI5Ii8+CiAgPHBvbHlsaW5lIHBvaW50cz0iMTIsNiAxMiwxMiAxNiwxNCIvPgogIDxwYXRoIGQ9Ik0xMiAzdjFNMTIgMjB2MU0zIDEyaDFNMjAgMTJoMSIvPgo8L3N2Zz4K"
   platform: false
   chart:
     repository: https://grafana.github.io/helm-charts
@@ -366,6 +373,7 @@ spec:
   description: End-to-end distributed tracing and service mesh observability
   category: observability
   icon: "🎯"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSI5Ii8+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNCIvPgogIDxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEiLz4KICA8bGluZSB4MT0iMTIiIHkxPSIzIiB4Mj0iMTIiIHkyPSI2Ii8+CiAgPGxpbmUgeDE9IjEyIiB5MT0iMTgiIHgyPSIxMiIgeTI9IjIxIi8+CiAgPGxpbmUgeDE9IjMiIHkxPSIxMiIgeDI9IjYiIHkyPSIxMiIvPgogIDxsaW5lIHgxPSIxOCIgeTE9IjEyIiB4Mj0iMjEiIHkyPSIxMiIvPgo8L3N2Zz4K"
   platform: false
   chart:
     repository: https://jaegertracing.github.io/helm-charts
@@ -399,6 +407,7 @@ spec:
   description: Vendor-neutral telemetry agent for collecting traces, metrics, and logs via OTLP
   category: observability
   icon: "🔭"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cGF0aCBkPSJNNCA0bDcgOC03IDgiLz4KICA8cGF0aCBkPSJNMjAgNGwtNyA4IDcgOCIvPgogIDxsaW5lIHgxPSIxMSIgeTE9IjEyIiB4Mj0iMTMiIHkyPSIxMiIvPgogIDxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjIiLz4KPC9zdmc+Cg=="
   platform: false
   chart:
     repository: https://open-telemetry.github.io/opentelemetry-helm-charts
@@ -476,6 +485,7 @@ spec:
   description: Backup, restore, and migrate Kubernetes resources and persistent volumes
   category: backup
   icon: "🛡️"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cGF0aCBkPSJNMTIgMkwzIDd2NmMwIDUuMjUgMy43NSA5Ljc1IDkgMTEgNS4yNS0xLjI1IDktNS43NSA5LTExVjdsLTktNXoiLz4KICA8cG9seWxpbmUgcG9pbnRzPSI4LDEyIDEyLDggMTYsMTIiLz4KICA8bGluZSB4MT0iMTIiIHkxPSI4IiB4Mj0iMTIiIHkyPSIxNyIvPgo8L3N2Zz4K"
   platform: false
   chart:
     repository: https://vmware-tanzu.github.io/helm-charts
@@ -517,7 +527,9 @@ spec:
   description: GitOps toolkit for continuous delivery with Kubernetes
   category: gitops
   icon: "🔄"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cGF0aCBkPSJNMTcgM2E1IDUgMCAwMTAgN2wtNSA1Ii8+CiAgPHBhdGggZD0iTTcgMjFhNSA1IDAgMDEwLTdsNS01Ii8+CiAgPHBvbHlsaW5lIHBvaW50cz0iMTQsNiAxNywzIDIwLDYiLz4KICA8cG9seWxpbmUgcG9pbnRzPSIxMCwxOCA3LDIxIDQsMTgiLz4KPC9zdmc+Cg=="
   platform: false
+  tier: infrastructure
   chart:
     repository: https://fluxcd-community.github.io/helm-charts
     name: flux2
@@ -551,6 +563,7 @@ spec:
   description: Declarative GitOps continuous delivery for Kubernetes
   category: gitops
   icon: "🐙"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSI5Ii8+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSI5IiByPSIzIi8+CiAgPHBhdGggZD0iTTggMTdsNC01IDQgNSIvPgogIDxsaW5lIHgxPSIxMiIgeTE9IjEyIiB4Mj0iMTIiIHkyPSIxNyIvPgo8L3N2Zz4K"
   platform: false
   chart:
     repository: https://argoproj.github.io/argo-helm
@@ -592,6 +605,7 @@ spec:
   description: Synchronize secrets from external APIs into Kubernetes
   category: security
   icon: "🔑"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cGF0aCBkPSJNMjEgMmwtMiAybS03LjYxIDcuNjFhNS41IDUuNSAwIDExLTcuNzc4IDcuNzc4IDUuNSA1LjUgMCAwMTcuNzc3LTcuNzc3em0wIDBMMTUuNSA3LjVtMCAwbDMgM0wyMiA3bC0zLTNtLTMuNSAzLjVMMTkgNCIvPgogIDxwb2x5bGluZSBwb2ludHM9IjE3LDggMjAsNSIvPgo8L3N2Zz4K"
   platform: false
   tier: infrastructure
   chart:
@@ -629,6 +643,7 @@ spec:
   description: Encrypt secrets for safe storage in Git
   category: security
   icon: "🔒"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cmVjdCB4PSI1IiB5PSIxMSIgd2lkdGg9IjE0IiBoZWlnaHQ9IjEwIiByeD0iMiIvPgogIDxwYXRoIGQ9Ik04IDExVjdhNCA0IDAgMDE4IDB2NCIvPgogIDxjaXJjbGUgY3g9IjEyIiBjeT0iMTYiIHI9IjEuNSIvPgogIDxsaW5lIHgxPSIxMiIgeTE9IjE3LjUiIHgyPSIxMiIgeTI9IjE5Ii8+Cjwvc3ZnPgo="
   platform: false
   tier: infrastructure
   chart:
@@ -665,6 +680,8 @@ spec:
   description: Synchronize exposed Kubernetes Services and Ingresses with DNS providers
   category: dns
   icon: "🌍"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSI5Ii8+CiAgPGVsbGlwc2UgY3g9IjEyIiBjeT0iMTIiIHJ4PSI0IiByeT0iOSIvPgogIDxsaW5lIHgxPSIzIiB5MT0iMTIiIHgyPSIyMSIgeTI9IjEyIi8+CiAgPHBhdGggZD0iTTMuNSA4aDE3TTMuNSAxNmgxNyIvPgo8L3N2Zz4K"
+  tier: infrastructure
   platform: false
   chart:
     repository: https://kubernetes-sigs.github.io/external-dns
@@ -703,6 +720,8 @@ spec:
   description: Service mesh for observability, security, and traffic management
   category: service-mesh
   icon: "🕸️"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cG9seWdvbiBwb2ludHM9IjEyLDIgMjAsMjIgMTIsMTggNCwyMiIvPgogIDxsaW5lIHgxPSIxMiIgeTE9IjIiIHgyPSIxMiIgeTI9IjE4Ii8+Cjwvc3ZnPgo="
+  tier: infrastructure
   platform: false
   chart:
     repository: https://istio-release.storage.googleapis.com/charts
@@ -737,6 +756,8 @@ spec:
   description: Ultralight, security-first service mesh for Kubernetes
   category: service-mesh
   icon: "🔗"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cGF0aCBkPSJNMTAgNGE0IDQgMCAwMC00IDR2MGE0IDQgMCAwMDQgNGg0YTQgNCAwIDAwNC00djBhNCA0IDAgMDAtNC00aC00eiIvPgogIDxwYXRoIGQ9Ik0xMCAxMmE0IDQgMCAwMC00IDR2MGE0IDQgMCAwMDQgNGg0YTQgNCAwIDAwNC00djBhNCA0IDAgMDAtNC00aC00eiIvPgo8L3N2Zz4K"
+  tier: infrastructure
   platform: false
   chart:
     repository: https://helm.linkerd.io/stable
@@ -773,6 +794,7 @@ spec:
   description: PostgreSQL operator for Kubernetes with high availability
   category: database
   icon: "🐘"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8ZWxsaXBzZSBjeD0iMTIiIGN5PSI2IiByeD0iNyIgcnk9IjMiLz4KICA8cGF0aCBkPSJNNSA2djVjMCAxLjY2IDMuMTMgMyA3IDNzNy0xLjM0IDctM1Y2Ii8+CiAgPHBhdGggZD0iTTUgMTF2NWMwIDEuNjYgMy4xMyAzIDcgM3M3LTEuMzQgNy0zdi01Ii8+CiAgPHBhdGggZD0iTTUgMTZ2MmMwIDEuNjYgMy4xMyAzIDcgM3M3LTEuMzQgNy0zdi0yIi8+Cjwvc3ZnPgo="
   platform: false
   tier: infrastructure
   chart:
@@ -810,6 +832,7 @@ spec:
   description: In-memory data structure store for caching and messaging
   category: database
   icon: "🔴"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cG9seWdvbiBwb2ludHM9IjEyLDIgMjIsNyAxMiwxMiAyLDciLz4KICA8cG9seWxpbmUgcG9pbnRzPSIyLDcgMiwxNyAxMiwyMiAyMiwxNyAyMiw3Ii8+CiAgPGxpbmUgeDE9IjEyIiB5MT0iMTIiIHgyPSIxMiIgeTI9IjIyIi8+CiAgPHBvbHlsaW5lIHBvaW50cz0iMiwxMiAxMiwxNyAyMiwxMiIvPgo8L3N2Zz4K"
   platform: false
   chart:
     repository: https://charts.bitnami.com/bitnami
@@ -851,6 +874,7 @@ spec:
   description: High-performance messaging system for cloud native applications
   category: messaging
   icon: "📬"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cGF0aCBkPSJNMTMgMkwzIDE0aDlsLTEgOCAxMC0xMmgtOWwxLTh6Ii8+Cjwvc3ZnPgo="
   platform: false
   chart:
     repository: https://nats-io.github.io/k8s/helm/charts
@@ -888,6 +912,7 @@ spec:
   description: Open-source message broker for reliable messaging
   category: messaging
   icon: "🐰"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cmVjdCB4PSIzIiB5PSIxMCIgd2lkdGg9IjE4IiBoZWlnaHQ9IjExIiByeD0iMiIvPgogIDxyZWN0IHg9IjciIHk9IjE0IiB3aWR0aD0iNCIgaGVpZ2h0PSI0IiByeD0iMC41Ii8+CiAgPHJlY3QgeD0iMTMiIHk9IjE0IiB3aWR0aD0iNCIgaGVpZ2h0PSI0IiByeD0iMC41Ii8+CiAgPHBhdGggZD0iTTggMTBWNWEzIDMgMCAwMTYgMHY1Ii8+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjQiIHI9IjIiLz4KICA8Y2lyY2xlIGN4PSIxNiIgY3k9IjQiIHI9IjIiLz4KPC9zdmc+Cg=="
   platform: false
   chart:
     repository: https://charts.bitnami.com/bitnami

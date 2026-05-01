@@ -18,6 +18,7 @@ spec:
   description: eBPF-based networking, security, and observability for Kubernetes
   category: cni
   icon: "🌐"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8Y2lyY2xlIGN4PSIxMiIgY3k9IjUiIHI9IjIiLz4KICA8Y2lyY2xlIGN4PSI1IiBjeT0iMTIiIHI9IjIiLz4KICA8Y2lyY2xlIGN4PSIxOSIgY3k9IjEyIiByPSIyIi8+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjE5IiByPSIyIi8+CiAgPGNpcmNsZSBjeD0iMTYiIGN5PSIxOSIgcj0iMiIvPgogIDxsaW5lIHgxPSIxMiIgeTE9IjciIHgyPSI1IiB5Mj0iMTAiLz4KICA8bGluZSB4MT0iMTIiIHkxPSI3IiB4Mj0iMTkiIHkyPSIxMCIvPgogIDxsaW5lIHgxPSI1IiB5MT0iMTQiIHgyPSI4IiB5Mj0iMTciLz4KICA8bGluZSB4MT0iMTkiIHkxPSIxNCIgeDI9IjE2IiB5Mj0iMTciLz4KICA8bGluZSB4MT0iMTAiIHkxPSIxOSIgeDI9IjE0IiB5Mj0iMTkiLz4KPC9zdmc+Cg=="
   platform: true
   chart:
     repository: https://helm.cilium.io
@@ -87,6 +88,7 @@ spec:
   description: Bare metal load balancer implementation for Kubernetes
   category: loadbalancer
   icon: "⚖️"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cG9seWdvbiBwb2ludHM9IjEyLDMgNCw5IDEyLDE1IDIwLDkiLz4KICA8bGluZSB4MT0iMTIiIHkxPSIxNSIgeDI9IjEyIiB5Mj0iMjEiLz4KICA8bGluZSB4MT0iOCIgeTE9IjE3IiB4Mj0iMTYiIHkyPSIxNyIvPgogIDxwb2x5bGluZSBwb2ludHM9IjQsOSA0LDE1IDEyLDIxIDIwLDE1IDIwLDkiLz4KPC9zdmc+Cg=="
   platform: true
   dependsOn:
     - cilium
@@ -121,6 +123,7 @@ spec:
   description: X.509 certificate management and automation for Kubernetes
   category: certmanager
   icon: "🔐"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cGF0aCBkPSJNMTIgMkwzIDd2NmMwIDUuMjUgMy43NSA5Ljc1IDkgMTEgNS4yNS0xLjI1IDktNS43NSA5LTExVjdsLTktNXoiLz4KICA8cG9seWxpbmUgcG9pbnRzPSI5LDEyIDExLDE0IDE1LDEwIi8+Cjwvc3ZnPgo="
   platform: true
   chart:
     repository: https://charts.jetstack.io
@@ -158,6 +161,7 @@ spec:
   description: Cloud-native distributed block storage for Kubernetes
   category: storage
   icon: "💾"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8ZWxsaXBzZSBjeD0iMTIiIGN5PSI2IiByeD0iOCIgcnk9IjMiLz4KICA8cGF0aCBkPSJNNCA2djZjMCAxLjY2IDMuNTggMyA4IDNzOC0xLjM0IDgtM1Y2Ii8+CiAgPHBhdGggZD0iTTQgMTJ2NmMwIDEuNjYgMy41OCAzIDggM3M4LTEuMzQgOC0zdi02Ii8+Cjwvc3ZnPgo="
   platform: true
   chart:
     repository: https://charts.longhorn.io
@@ -195,6 +199,7 @@ spec:
   description: Cloud-native ingress controller and reverse proxy
   category: ingress
   icon: "🚪"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cGF0aCBkPSJNNCAxMmg0bDQtNiA0IDZoNCIvPgogIDxsaW5lIHgxPSI4IiB5MT0iMTIiIHgyPSI4IiB5Mj0iMTgiLz4KICA8bGluZSB4MT0iMTYiIHkxPSIxMiIgeDI9IjE2IiB5Mj0iMTgiLz4KICA8bGluZSB4MT0iNCIgeTE9IjE4IiB4Mj0iMjAiIHkyPSIxOCIvPgogIDxwb2x5bGluZSBwb2ludHM9IjEwLDYgMTIsMyAxNCw2Ii8+Cjwvc3ZnPgo="
   platform: true
   dependsOn:
     - metallb
@@ -231,6 +236,7 @@ spec:
   description: Cluster-wide aggregator of resource usage data for HPA and kubectl top
   category: observability
   icon: "📈"
+  iconData: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRkNGQ0IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICA8cmVjdCB4PSIzIiB5PSIxNCIgd2lkdGg9IjQiIGhlaWdodD0iNyIgcng9IjEiLz4KICA8cmVjdCB4PSIxMCIgeT0iOSIgd2lkdGg9IjQiIGhlaWdodD0iMTIiIHJ4PSIxIi8+CiAgPHJlY3QgeD0iMTciIHk9IjQiIHdpZHRoPSI0IiBoZWlnaHQ9IjE3IiByeD0iMSIvPgogIDxwb2x5bGluZSBwb2ludHM9IjMsNiAxMCw0IDE3LDIiLz4KPC9zdmc+Cg=="
   platform: true
   chart:
     repository: https://kubernetes-sigs.github.io/metrics-server
