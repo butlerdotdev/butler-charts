@@ -2,7 +2,7 @@ apiVersion: v2
 name: butler-addons
 description: Butler addon definitions catalog - predefined addons for tenant and management clusters
 type: application
-version: 0.5.2
+version: 0.6.0
 appVersion: "v1alpha1"
 
 keywords:
