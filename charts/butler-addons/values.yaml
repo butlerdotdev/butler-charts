@@ -41,6 +41,34 @@ config:
   # defaultTimeServers:
   #   - ntp.example.com
 
+  # -- Observability pipeline and collection defaults (optional).
+  # When observability values are declared here, this chart owns the
+  # ButlerConfig.spec.observability fields. Changes made via the
+  # butler-console UI or butler-server API will appear to succeed but
+  # will be reverted at the next Helm reconcile (default 10min).
+  # For UI-driven workflows, leave this block commented out.
+  #
+  # observability:
+  #   pipeline:
+  #     clusterRef:
+  #       name: obs-pipeline-prd
+  #       namespace: platform-engineering
+  #     logEndpoint: "http://vector-aggregator.vector.svc:8080"
+  #     metricEndpoint: "http://victoria-metrics.monitoring.svc:8480/insert/0/prometheus/api/v1/write"
+  #     traceEndpoint: "http://tempo.tracing.svc:4317"
+  #   collection:
+  #     autoEnroll:
+  #       vectorAgent: true
+  #       prometheus: false
+  #       otelCollector: false
+  #     logs:
+  #       podLogs: true
+  #       journald: false
+  #       kubernetesEvents: false
+  #     metrics:
+  #       enabled: false
+  #       retention: "15d"
+
   # Bootstrap Platform Admin User
   # Creates a User CRD so the admin appears in the Users page
   bootstrapAdmin:
