@@ -31,4 +31,8 @@ spec:
   defaultTimeServers:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- with .Values.config.observability }}
+  observability:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 {{- end }}
