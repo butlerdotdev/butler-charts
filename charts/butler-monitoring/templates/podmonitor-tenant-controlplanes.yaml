@@ -1,0 +1,85 @@
+{{- if .Values.substrates.tenantControlPlanes.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ include "butler-monitoring.fullname" . }}-tenant-cp
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "butler-monitoring.labels" . | nindent 4 }}
+spec:
+  # Select all tenant control plane pods across namespaces.
+  # Steward sets steward.butlerlabs.dev/component=deployment on every TCP
+  # pod template. The steward.butlerlabs.dev/name label carries the tenant
+  # name, giving per-tenant cardinality without per-tenant PodMonitors.
+  #
+  # AUTH LIMITATION: Tenant CP components authenticate via per-tenant mTLS
+  # client certificates. Each tenant has a unique Secret
+  # (<tcp-name>-api-server-kubelet-client-certificate) containing the
+  # client cert and key. PodMonitor tlsConfig is per-endpoint, not per-pod,
+  # so a single PodMonitor cannot reference different certs per tenant.
+  #
+  # Until Steward provisions a shared monitoring credential or
+  # butler-controller creates per-tenant ServiceMonitors dynamically,
+  # scrapes will return 401/403. The PodMonitor is shipped so the
+  # discovery, relabeling, and metric filtering are ready when the
+  # auth prerequisite is resolved upstream.
+  selector:
+    matchLabels:
+      steward.butlerlabs.dev/component: deployment
+  namespaceSelector:
+    any: true
+  podMetricsEndpoints:
+    # kube-apiserver metrics. Port defaults to 6443 (NetworkProfile.Port).
+    # TCP containers don't define named ports, so we use targetPort with
+    # the numeric port value.
+    - targetPort: {{ .Values.substrates.tenantControlPlanes.apiServerPort }}
+      path: /metrics
+      scheme: https
+      interval: {{ .Values.substrates.tenantControlPlanes.interval }}
+      scrapeTimeout: {{ .Values.substrates.tenantControlPlanes.scrapeTimeout }}
+      tlsConfig:
+        insecureSkipVerify: true
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_label_steward_butlerlabs_dev_name]
+          targetLabel: tenant
+        - sourceLabels: [__meta_kubernetes_namespace]
+          targetLabel: tenant_namespace
+      metricRelabelings:
+        - action: keep
+          sourceLabels: [__name__]
+          regex: apiserver_request_total|apiserver_request_duration_seconds_bucket|apiserver_current_inflight_requests|apiserver_storage_objects|process_resident_memory_bytes|process_cpu_seconds_total|workqueue_depth|workqueue_adds_total|workqueue_queue_duration_seconds_bucket
+    # kube-controller-manager metrics.
+    - targetPort: {{ .Values.substrates.tenantControlPlanes.controllerManagerPort }}
+      path: /metrics
+      scheme: https
+      interval: {{ .Values.substrates.tenantControlPlanes.interval }}
+      scrapeTimeout: {{ .Values.substrates.tenantControlPlanes.scrapeTimeout }}
+      tlsConfig:
+        insecureSkipVerify: true
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_label_steward_butlerlabs_dev_name]
+          targetLabel: tenant
+        - sourceLabels: [__meta_kubernetes_namespace]
+          targetLabel: tenant_namespace
+      metricRelabelings:
+        - action: keep
+          sourceLabels: [__name__]
+          regex: workqueue_depth|workqueue_adds_total|process_resident_memory_bytes|process_cpu_seconds_total
+    # kube-scheduler metrics.
+    - targetPort: {{ .Values.substrates.tenantControlPlanes.schedulerPort }}
+      path: /metrics
+      scheme: https
+      interval: {{ .Values.substrates.tenantControlPlanes.interval }}
+      scrapeTimeout: {{ .Values.substrates.tenantControlPlanes.scrapeTimeout }}
+      tlsConfig:
+        insecureSkipVerify: true
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_label_steward_butlerlabs_dev_name]
+          targetLabel: tenant
+        - sourceLabels: [__meta_kubernetes_namespace]
+          targetLabel: tenant_namespace
+      metricRelabelings:
+        - action: keep
+          sourceLabels: [__name__]
+          regex: scheduler_scheduling_attempt_duration_seconds_bucket|scheduler_pending_pods|process_resident_memory_bytes|process_cpu_seconds_total
+{{- end }}
