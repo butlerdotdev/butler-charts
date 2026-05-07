@@ -167,6 +167,24 @@ Releases are automated via GitHub Actions:
    - Push to GHCR OCI registry
    - Create GitHub release
 
+## Subchart Dependencies
+
+butler-charts vendors subchart dependencies. When a chart in this repo depends on an external Helm chart (e.g., kube-prometheus-stack), the subchart `.tgz` is committed alongside the parent chart at `charts/<parent>/charts/`.
+
+This convention ensures byte-reproducible releases and supports air-gapped customer deployments without external Helm repo dependencies at release time.
+
+To add or update a subchart dependency:
+
+1. Update the `dependencies` block in `Chart.yaml` with the new version
+2. Run `helm dependency update charts/<parent>`
+3. Verify the new `.tgz` is present in `charts/<parent>/charts/`
+4. If the version changed, remove the old version's `.tgz`
+5. Commit `Chart.yaml`, `Chart.lock`, and the new `.tgz`
+6. Bump the parent chart version in `Chart.yaml`
+7. PR through normal review
+
+The `.gitignore` has a negation rule (`!charts/*/charts/*.tgz`) that allows vendored subchart tarballs to be tracked while still ignoring `.tgz` files everywhere else.
+
 ## Getting Help
 
 - Open an issue for bugs or feature requests
