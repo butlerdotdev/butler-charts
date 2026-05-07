@@ -1,0 +1,44 @@
+Butler substrate monitoring has been installed.
+
+Prometheus is scraping management cluster targets:
+{{- if .Values.substrates.stewardEtcd.enabled }}
+  - Steward etcd instances (port 2381)
+{{- end }}
+{{- if .Values.substrates.tenantControlPlanes.enabled }}
+  - Tenant control plane pods (kube-apiserver, controller-manager, scheduler)
+{{- end }}
+{{- if .Values.substrates.butlerController.enabled }}
+  - butler-controller (port 8080)
+{{- end }}
+{{- if .Values.substrates.steward.enabled }}
+  - Steward (port 8080)
+{{- end }}
+{{- if .Values.substrates.butlerServer.enabled }}
+  - butler-server (port 9090) — requires butler-server metrics instrumentation
+{{- end }}
+{{- if and .Values.substrates.managementEtcd.enabled .Values.substrates.managementEtcd.addresses }}
+  - Management cluster etcd
+{{- end }}
+
+{{- if .Values.recordingRules.enabled }}
+Recording rules for substrate health are active.
+{{- end }}
+{{- if .Values.alertRules.enabled }}
+Alert rules for critical substrate conditions are active.
+{{- end }}
+
+To verify Prometheus is running:
+  kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/name=prometheus
+
+To check scrape targets:
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ .Release.Name }}-kube-promethe-prometheus 9090:9090
+  # Then visit http://localhost:9090/targets
+
+To check active alerts:
+  # Visit http://localhost:9090/alerts (while port-forward is running)
+
+{{- if not (index .Values "kube-prometheus-stack" "alertmanager" "enabled") }}
+NOTE: Alertmanager is not deployed. Alerts are visible in the
+Prometheus UI but no notifications are sent. Operators must check
+the Prometheus UI manually or deploy Alertmanager separately.
+{{- end }}

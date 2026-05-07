@@ -1,0 +1,29 @@
+{{- if .Values.substrates.butlerServer.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "butler-monitoring.fullname" . }}-butler-server
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "butler-monitoring.labels" . | nindent 4 }}
+spec:
+  # butler-server Prometheus instrumentation has not shipped yet.
+  # This ServiceMonitor is scaffolded so it activates when instrumentation
+  # lands. Until then, scrapes will fail with connection refused on the
+  # metrics port. Disabled by default — enable when butler-server exposes
+  # /metrics on port 9090.
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: {{ .Values.substrates.butlerServer.interval }}
+      scrapeTimeout: {{ .Values.substrates.butlerServer.scrapeTimeout }}
+      relabelings:
+        - targetLabel: substrate
+          replacement: butler-server
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: butler-console-server
+  namespaceSelector:
+    matchNames:
+      - {{ .Values.substrates.butlerServer.namespace }}
+{{- end }}

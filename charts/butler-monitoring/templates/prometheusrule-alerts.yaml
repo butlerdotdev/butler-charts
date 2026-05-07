@@ -1,0 +1,340 @@
+{{- if .Values.alertRules.enabled }}
+{{- $t := .Values.alertRules.thresholds }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "butler-monitoring.fullname" . }}-alert-rules
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "butler-monitoring.labels" . | nindent 4 }}
+spec:
+  groups:
+    # ---------------------------------------------------------------
+    # Steward etcd alerts
+    #
+    # Steward etcd is the highest-priority substrate. A stressed etcd
+    # instance cascades failures across every tenant sharing it.
+    # These alerts fire before cascade begins.
+    # ---------------------------------------------------------------
+    - name: butler:steward-etcd:alerts
+      rules:
+        # No leader means the etcd cluster cannot process writes.
+        # All tenant control planes sharing this instance are frozen.
+        - alert: StewardEtcdNoLeader
+          expr: |
+            etcd_server_has_leader{substrate="steward-etcd"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            substrate: steward-etcd
+          annotations:
+            summary: Steward etcd instance has no leader.
+            description: >-
+              Steward etcd instance {{ "{{" }} $labels.instance {{ "}}" }} has had no
+              leader for more than 1 minute. All tenant control planes
+              backed by this instance cannot process writes. Check etcd
+              peer connectivity and quorum.
+
+        # Frequent leader changes indicate network instability or
+        # resource contention between etcd peers.
+        - alert: StewardEtcdHighLeaderChanges
+          expr: |
+            increase(etcd_server_leader_changes_seen_total{substrate="steward-etcd"}[15m]) > {{ $t.stewardEtcd.leaderChanges }}
+          for: 5m
+          labels:
+            severity: warning
+            substrate: steward-etcd
+          annotations:
+            summary: Steward etcd is experiencing frequent leader elections.
+            description: >-
+              Steward etcd instance {{ "{{" }} $labels.instance {{ "}}" }} has seen
+              {{ "{{" }} $value {{ "}}" }} leader changes in the last 15 minutes.
+              Frequent elections cause write latency spikes across all
+              tenants sharing this instance. Check network stability
+              and disk I/O on etcd nodes.
+
+        # WAL fsync latency is the earliest warning of disk pressure.
+        # Sustained high fsync times lead to proposal timeouts.
+        - alert: StewardEtcdWalFsyncSlow
+          expr: |
+            butler:etcd_disk_wal_fsync_p99:5m{substrate="steward-etcd"} > {{ $t.stewardEtcd.walFsyncWarning }}
+          for: 5m
+          labels:
+            severity: warning
+            substrate: steward-etcd
+          annotations:
+            summary: Steward etcd WAL fsync latency is elevated.
+            description: >-
+              Steward etcd instance {{ "{{" }} $labels.instance {{ "}}" }} WAL fsync
+              p99 is {{ "{{" }} $value | humanizeDuration {{ "}}" }}. Disk I/O
+              contention will eventually stall proposals. Check disk
+              utilization and I/O scheduler.
+
+        - alert: StewardEtcdWalFsyncCritical
+          expr: |
+            butler:etcd_disk_wal_fsync_p99:5m{substrate="steward-etcd"} > {{ $t.stewardEtcd.walFsyncCritical }}
+          for: 5m
+          labels:
+            severity: critical
+            substrate: steward-etcd
+          annotations:
+            summary: Steward etcd WAL fsync latency is critically high.
+            description: >-
+              Steward etcd instance {{ "{{" }} $labels.instance {{ "}}" }} WAL fsync
+              p99 is {{ "{{" }} $value | humanizeDuration {{ "}}" }}. Proposals are
+              likely failing. Immediate disk I/O investigation required.
+
+        # Backend commit latency indicates boltdb compaction pressure.
+        - alert: StewardEtcdBackendCommitSlow
+          expr: |
+            butler:etcd_disk_backend_commit_p99:5m{substrate="steward-etcd"} > {{ $t.stewardEtcd.backendCommitWarning }}
+          for: 5m
+          labels:
+            severity: warning
+            substrate: steward-etcd
+          annotations:
+            summary: Steward etcd backend commit latency is elevated.
+            description: >-
+              Steward etcd instance {{ "{{" }} $labels.instance {{ "}}" }} backend
+              commit p99 is {{ "{{" }} $value | humanizeDuration {{ "}}" }}.
+              Database compaction or disk saturation may be causing
+              state machine lag.
+
+        # Proposals failing means the cluster is losing writes.
+        - alert: StewardEtcdProposalFailures
+          expr: |
+            butler:etcd_proposals_failed_rate:5m{substrate="steward-etcd"} > 0
+          for: 5m
+          labels:
+            severity: critical
+            substrate: steward-etcd
+          annotations:
+            summary: Steward etcd is failing consensus proposals.
+            description: >-
+              Steward etcd instance {{ "{{" }} $labels.instance {{ "}}" }} is failing
+              proposals at {{ "{{" }} $value {{ "}}" }} per second. Tenant control
+              plane writes are being dropped. Check quorum health
+              and leader stability.
+
+        # Database approaching quota. etcd blocks all writes at quota.
+        - alert: StewardEtcdDbSizeWarning
+          expr: |
+            butler:etcd_db_size_bytes{substrate="steward-etcd"} > {{ $t.stewardEtcd.dbSizeWarning }}
+          for: 5m
+          labels:
+            severity: warning
+            substrate: steward-etcd
+          annotations:
+            summary: Steward etcd database size is approaching quota.
+            description: >-
+              Steward etcd instance {{ "{{" }} $labels.instance {{ "}}" }} database
+              size is {{ "{{" }} $value | humanize1024 {{ "}}" }}B. Run etcd
+              defragmentation or increase the quota before writes
+              are blocked.
+
+    # ---------------------------------------------------------------
+    # Management etcd alerts
+    #
+    # Management cluster etcd backs butler-controller, butler-server,
+    # and Steward. Same failure modes as steward-etcd but different
+    # blast radius.
+    # ---------------------------------------------------------------
+    - name: butler:management-etcd:alerts
+      rules:
+        - alert: ManagementEtcdNoLeader
+          expr: |
+            etcd_server_has_leader{substrate="management-etcd"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            substrate: management-etcd
+          annotations:
+            summary: Management cluster etcd has no leader.
+            description: >-
+              Management etcd instance {{ "{{" }} $labels.instance {{ "}}" }} has had
+              no leader for more than 1 minute. Butler controller
+              reconciliation, console access, and tenant lifecycle
+              operations are stalled.
+
+        - alert: ManagementEtcdWalFsyncSlow
+          expr: |
+            butler:etcd_disk_wal_fsync_p99:5m{substrate="management-etcd"} > {{ $t.managementEtcd.walFsyncWarning }}
+          for: 5m
+          labels:
+            severity: warning
+            substrate: management-etcd
+          annotations:
+            summary: Management etcd WAL fsync latency is elevated.
+            description: >-
+              Management etcd instance {{ "{{" }} $labels.instance {{ "}}" }} WAL
+              fsync p99 is {{ "{{" }} $value | humanizeDuration {{ "}}" }}.
+
+        - alert: ManagementEtcdWalFsyncCritical
+          expr: |
+            butler:etcd_disk_wal_fsync_p99:5m{substrate="management-etcd"} > {{ $t.managementEtcd.walFsyncCritical }}
+          for: 5m
+          labels:
+            severity: critical
+            substrate: management-etcd
+          annotations:
+            summary: Management etcd WAL fsync latency is critically high.
+            description: >-
+              Management etcd instance {{ "{{" }} $labels.instance {{ "}}" }} WAL
+              fsync p99 is {{ "{{" }} $value | humanizeDuration {{ "}}" }}.
+
+        - alert: ManagementEtcdProposalFailures
+          expr: |
+            butler:etcd_proposals_failed_rate:5m{substrate="management-etcd"} > 0
+          for: 5m
+          labels:
+            severity: critical
+            substrate: management-etcd
+          annotations:
+            summary: Management etcd is failing consensus proposals.
+            description: >-
+              Management etcd instance {{ "{{" }} $labels.instance {{ "}}" }} is
+              failing proposals at {{ "{{" }} $value {{ "}}" }} per second.
+
+    # ---------------------------------------------------------------
+    # butler-controller alerts
+    # ---------------------------------------------------------------
+    - name: butler:controller:alerts
+      rules:
+        # High reconcile error ratio means the controller is not
+        # converging cluster state.
+        - alert: ButlerControllerReconcileErrors
+          expr: |
+            butler:controller_reconcile_error_ratio:5m > {{ $t.controller.reconcileErrorWarning }}
+          for: 5m
+          labels:
+            severity: warning
+            substrate: butler-controller
+          annotations:
+            summary: butler-controller reconcile error ratio is elevated.
+            description: >-
+              butler-controller {{ "{{" }} $labels.controller {{ "}}" }} has a
+              reconcile error ratio of {{ "{{" }} $value | humanizePercentage {{ "}}" }}.
+              Cluster state convergence is degraded. Check controller
+              logs for error details.
+
+        - alert: ButlerControllerReconcileErrorsCritical
+          expr: |
+            butler:controller_reconcile_error_ratio:5m > {{ $t.controller.reconcileErrorCritical }}
+          for: 5m
+          labels:
+            severity: critical
+            substrate: butler-controller
+          annotations:
+            summary: butler-controller reconcile error ratio is critically high.
+            description: >-
+              butler-controller {{ "{{" }} $labels.controller {{ "}}" }} has a
+              reconcile error ratio of {{ "{{" }} $value | humanizePercentage {{ "}}" }}.
+              Most reconciliations are failing.
+
+        # Sustained workqueue depth means the controller cannot keep
+        # up with incoming events.
+        - alert: ButlerControllerWorkqueueBacklog
+          expr: |
+            butler:controller_workqueue_depth > {{ $t.controller.workqueueDepthWarning }}
+          for: 10m
+          labels:
+            severity: warning
+            substrate: butler-controller
+          annotations:
+            summary: butler-controller workqueue has sustained backlog.
+            description: >-
+              butler-controller {{ "{{" }} $labels.name {{ "}}" }} workqueue depth
+              is {{ "{{" }} $value {{ "}}" }} for more than 10 minutes. Events are
+              accumulating faster than reconciliation can process them.
+
+    # ---------------------------------------------------------------
+    # Steward controller alerts
+    # ---------------------------------------------------------------
+    - name: butler:steward:alerts
+      rules:
+        - alert: StewardReconcileErrors
+          expr: |
+            butler:steward_reconcile_error_ratio:5m > {{ $t.steward.reconcileErrorWarning }}
+          for: 5m
+          labels:
+            severity: warning
+            substrate: steward
+          annotations:
+            summary: Steward reconcile error ratio is elevated.
+            description: >-
+              Steward controller {{ "{{" }} $labels.controller {{ "}}" }} has a
+              reconcile error ratio of {{ "{{" }} $value | humanizePercentage {{ "}}" }}.
+              Tenant control plane lifecycle operations may be failing.
+
+        - alert: StewardReconcileErrorsCritical
+          expr: |
+            butler:steward_reconcile_error_ratio:5m > {{ $t.steward.reconcileErrorCritical }}
+          for: 5m
+          labels:
+            severity: critical
+            substrate: steward
+          annotations:
+            summary: Steward reconcile error ratio is critically high.
+            description: >-
+              Steward controller {{ "{{" }} $labels.controller {{ "}}" }} has a
+              reconcile error ratio of {{ "{{" }} $value | humanizePercentage {{ "}}" }}.
+              Most tenant control plane reconciliations are failing.
+
+    # ---------------------------------------------------------------
+    # Tenant control plane alerts
+    #
+    # These alerts evaluate against data from the PodMonitor, which
+    # is disabled by default (pending upstream Steward auth work).
+    # Rules produce no alerts when no matching series exist. When
+    # tenant CP scraping becomes functional, alerts activate
+    # automatically.
+    # ---------------------------------------------------------------
+    - name: butler:tenant-cp:alerts
+      rules:
+        # Per-tenant apiserver latency. Slow API responses indicate
+        # resource contention or etcd pressure for that tenant.
+        - alert: TenantApiserverLatencyWarning
+          expr: |
+            butler:apiserver_request_duration_p99:5m{verb=~"GET|LIST"} > {{ $t.tenantControlPlanes.latencyWarning }}
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Tenant apiserver read latency is elevated.
+            description: >-
+              Tenant {{ "{{" }} $labels.tenant {{ "}}" }} in namespace
+              {{ "{{" }} $labels.tenant_namespace {{ "}}" }} has p99 {{ "{{" }} $labels.verb {{ "}}" }}
+              latency of {{ "{{" }} $value | humanizeDuration {{ "}}" }}. Check etcd
+              health for the backing DataStore and tenant workload
+              activity.
+
+        - alert: TenantApiserverLatencyCritical
+          expr: |
+            butler:apiserver_request_duration_p99:5m{verb=~"GET|LIST"} > {{ $t.tenantControlPlanes.latencyCritical }}
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: Tenant apiserver read latency is critically high.
+            description: >-
+              Tenant {{ "{{" }} $labels.tenant {{ "}}" }} in namespace
+              {{ "{{" }} $labels.tenant_namespace {{ "}}" }} has p99 {{ "{{" }} $labels.verb {{ "}}" }}
+              latency of {{ "{{" }} $value | humanizeDuration {{ "}}" }}. The tenant
+              API is effectively unusable. Immediate investigation
+              required.
+
+        # Server errors from the tenant apiserver.
+        - alert: TenantApiserverErrors
+          expr: |
+            butler:apiserver_request_error_rate:5m > {{ $t.tenantControlPlanes.errorRateWarning }}
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Tenant apiserver is returning server errors.
+            description: >-
+              Tenant {{ "{{" }} $labels.tenant {{ "}}" }} in namespace
+              {{ "{{" }} $labels.tenant_namespace {{ "}}" }} apiserver is returning
+              5xx errors at {{ "{{" }} $value {{ "}}" }} per second. Check apiserver
+              logs and backing etcd health.
+{{- end }}
