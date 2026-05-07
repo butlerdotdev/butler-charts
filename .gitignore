@@ -1,6 +1,9 @@
 secrets/
 # Helm
 *.tgz
+# Allow vendored subchart dependencies — see CONTRIBUTING.md
+# for the vendoring convention
+!charts/*/charts/*.tgz
 .packages/
 
 # IDE
