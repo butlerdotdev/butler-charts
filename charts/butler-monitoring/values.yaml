@@ -1,0 +1,298 @@
+# -- Override the chart name.
+nameOverride: ""
+# -- Override the fully qualified app name.
+fullnameOverride: ""
+
+# ---------------------------------------------------------------------------
+# Butler substrate scrape targets
+#
+# Each toggle controls whether butler-monitoring creates the corresponding
+# ServiceMonitor or PodMonitor for that Butler component. Disabling a target
+# stops Prometheus from scraping it but does not affect the component itself.
+# ---------------------------------------------------------------------------
+substrates:
+  # -- Scrape butler-controller metrics (port 8080).
+  # Exposes reconcile duration, cluster phase, IPAM pool utilization,
+  # provider capacity, and controller-runtime workqueue metrics.
+  butlerController:
+    enabled: true
+    # -- Namespace where butler-controller is deployed.
+    namespace: butler-system
+    # -- Scrape interval.
+    interval: 30s
+    # -- Scrape timeout.
+    scrapeTimeout: 10s
+
+  # -- Scrape butler-server metrics (port 9090).
+  # Requires butler-server Prometheus instrumentation (not yet shipped).
+  # Disabled by default. Enable after butler-server exposes /metrics.
+  # The ServiceMonitor template is ready — flipping enabled: true
+  # activates it when instrumentation lands.
+  butlerServer:
+    enabled: false
+    # -- Namespace where butler-server is deployed.
+    namespace: butler-system
+    # -- Scrape interval.
+    interval: 30s
+    # -- Scrape timeout.
+    scrapeTimeout: 10s
+
+  # -- Scrape Steward controller metrics (port 8080).
+  # Currently exposes handler execution time histograms. Workqueue depth,
+  # reconcile error counters, and reconcile totals are upstream prerequisites
+  # that have not shipped yet.
+  steward:
+    enabled: true
+    # -- Namespace where Steward is deployed.
+    namespace: steward-system
+    # -- Scrape interval.
+    interval: 30s
+    # -- Scrape timeout.
+    scrapeTimeout: 10s
+
+  # -- Scrape Steward etcd instances (port 2381).
+  # Shared etcd backing tenant control planes. This is the highest-value
+  # substrate signal: a stressed etcd instance cascades failures across
+  # every tenant sharing it.
+  stewardEtcd:
+    enabled: true
+    # -- Namespace where steward-etcd is deployed.
+    namespace: steward-system
+    # -- Scrape interval. etcd metrics are cheap to collect; 15s gives
+    # good resolution for WAL fsync and backend commit latency trends.
+    interval: 15s
+    # -- Scrape timeout.
+    scrapeTimeout: 10s
+    # -- Label selector for steward-etcd client service.
+    # Default matches the steward-etcd chart's client service labels.
+    matchLabels:
+      prometheus.io/metrics: "true"
+
+  # -- Scrape management cluster etcd (Butler's own etcd).
+  # Backs butler-controller, butler-server, butler-console, and Steward.
+  # If stressed, reconciliation slows, console gets sluggish, and tenant
+  # lifecycle operations queue up.
+  managementEtcd:
+    enabled: true
+    # -- Static IP addresses or hostnames for management cluster etcd nodes.
+    # These vary by deployment (kubeadm, Talos, etc.). No resources are
+    # created when this list is empty.
+    # Example: ["10.0.0.1", "10.0.0.2", "10.0.0.3"]
+    addresses: []
+    # -- etcd client port.
+    port: 2379
+    # -- Scheme for etcd scraping (http or https).
+    scheme: https
+    # -- TLS configuration for management cluster etcd scraping.
+    # Most etcd deployments require mTLS. Set the secret name containing
+    # the CA cert, client cert, and client key.
+    tlsConfig:
+      # -- Secret containing etcd client certificates.
+      # Must have keys: ca.crt, tls.crt, tls.key
+      certSecretName: ""
+      insecureSkipVerify: false
+    # -- Scrape interval.
+    interval: 15s
+    # -- Scrape timeout.
+    scrapeTimeout: 10s
+
+  # -- Scrape tenant control plane pods on the management cluster.
+  # Each tenant's kube-apiserver, kube-scheduler, kube-controller-manager,
+  # and kine run as containers in a single pod managed by Steward.
+  # The PodMonitor selects all TCP pods via steward.butlerlabs.dev/component=deployment
+  # and scrapes each control plane container's metrics endpoint.
+  #
+  # All three containers serve metrics over HTTPS on their standard
+  # Kubernetes ports. No container port names are defined in the pod
+  # spec, so the PodMonitor targets by port number.
+  #
+  # AUTH PREREQUISITE: Tenant CP components authenticate via per-tenant
+  # mTLS client certificates (<tcp-name>-api-server-kubelet-client-certificate).
+  # A single PodMonitor cannot reference different certs per tenant.
+  # Scrapes will return 401/403 until one of:
+  #   - Steward provisions a shared monitoring credential
+  #   - butler-controller creates per-tenant ServiceMonitors dynamically
+  # Disabled by default. Enable explicitly if you need the PodMonitor
+  # created with discovery and relabeling in place ahead of the auth
+  # prerequisite landing. See README for current status.
+  tenantControlPlanes:
+    enabled: false
+    # -- Scrape interval. 30s balances resolution against cardinality
+    # growth as tenant count scales.
+    interval: 30s
+    # -- Scrape timeout.
+    scrapeTimeout: 10s
+    # -- kube-apiserver metrics port. This is the --secure-port value,
+    # configurable per tenant via NetworkProfile.Port (default 6443).
+    # Serves both API and /metrics on the same port over HTTPS.
+    apiServerPort: 6443
+    # -- kube-controller-manager metrics port (hardcoded in Steward).
+    controllerManagerPort: 10257
+    # -- kube-scheduler metrics port (hardcoded in Steward).
+    schedulerPort: 10259
+
+# -- Recording rules for substrate health queries.
+# These pre-compute expensive histogram quantiles so the console queries
+# pre-aggregated series instead of raw histogram buckets.
+recordingRules:
+  enabled: true
+
+# -- Alert rules for critical substrate conditions.
+# Rules evaluate in Prometheus regardless of whether Alertmanager is
+# configured. When Alertmanager is enabled in a future phase, these
+# rules are already in place and begin routing immediately.
+#
+# Thresholds are calibrated for moderate-sized installations (10-30
+# tenants, typical hardware). Adjust via helm upgrade --set without
+# forking the chart.
+alertRules:
+  enabled: true
+  thresholds:
+    stewardEtcd:
+      # -- Leader change count in 15m window that triggers warning.
+      leaderChanges: 3
+      # -- WAL fsync p99 warning threshold (seconds).
+      walFsyncWarning: 0.05
+      # -- WAL fsync p99 critical threshold (seconds).
+      walFsyncCritical: 0.2
+      # -- Backend commit p99 warning threshold (seconds).
+      backendCommitWarning: 0.025
+      # -- Database size warning threshold (bytes). Default 1.5GiB.
+      dbSizeWarning: 1610612736
+    managementEtcd:
+      # -- WAL fsync p99 warning threshold (seconds).
+      walFsyncWarning: 0.05
+      # -- WAL fsync p99 critical threshold (seconds).
+      walFsyncCritical: 0.2
+    controller:
+      # -- Reconcile error ratio warning threshold (0-1).
+      reconcileErrorWarning: 0.05
+      # -- Reconcile error ratio critical threshold (0-1).
+      reconcileErrorCritical: 0.25
+      # -- Workqueue depth warning threshold.
+      workqueueDepthWarning: 50
+    steward:
+      # -- Reconcile error ratio warning threshold (0-1).
+      reconcileErrorWarning: 0.05
+      # -- Reconcile error ratio critical threshold (0-1).
+      reconcileErrorCritical: 0.25
+    tenantControlPlanes:
+      # -- Apiserver read latency p99 warning threshold (seconds).
+      latencyWarning: 1
+      # -- Apiserver read latency p99 critical threshold (seconds).
+      latencyCritical: 5
+      # -- Apiserver 5xx error rate warning threshold (per second).
+      errorRateWarning: 0.5
+
+# ---------------------------------------------------------------------------
+# kube-prometheus-stack subchart overrides
+#
+# All Prometheus, Alertmanager, and operator configuration lives here.
+# Customers configuring storage, retention, or resource limits modify
+# this section. Butler-specific scrape targets are configured above.
+#
+# Scaling guidance:
+#   Small installations (< 10 tenants):
+#     - Reduce prometheus.prometheusSpec.resources.limits.memory to 2Gi
+#     - Reduce storage to 10Gi
+#   Moderate installations (10-30 tenants):
+#     - Defaults below are sized for this range
+#   Large installations (50+ tenants):
+#     - Increase storage to 50Gi+
+#     - Increase prometheus.prometheusSpec.resources.limits.memory to 8Gi+
+#     - Monitor prometheus_tsdb_head_series for cardinality growth
+#     - Consider reducing retention or increasing retentionSize
+# ---------------------------------------------------------------------------
+kube-prometheus-stack:
+  enabled: true
+
+  # -- Grafana is disabled. Butler console is the UI for substrate health.
+  # Customers needing power-user PromQL access can deploy Grafana
+  # separately or use kubectl port-forward to the Prometheus UI.
+  grafana:
+    enabled: false
+
+  # -- Alertmanager is disabled in Phase 1.
+  # Alert rules are defined in PrometheusRule resources and evaluate in
+  # Prometheus, but no Alertmanager instance exists to route them.
+  # Alertmanager will be enabled when Butler customer alerting requirements
+  # (PagerDuty, Slack, email, webhook) are captured and a Butler-managed
+  # routing configuration is designed.
+  alertmanager:
+    enabled: false
+
+  # -- Prometheus operator configuration.
+  prometheusOperator:
+    enabled: true
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+
+  # -- Prometheus server configuration.
+  prometheus:
+    prometheusSpec:
+      # -- Retention period. 7 days provides enough history for trend
+      # analysis and early warning without excessive storage use.
+      retention: 7d
+      # -- Maximum total size of the TSDB. Prometheus drops oldest data
+      # when this limit is reached, regardless of retention period.
+      retentionSize: 15GiB
+      # -- Enable WAL compression to reduce disk I/O and storage use.
+      walCompression: true
+      # -- Resource requests and limits sized for 10-30 tenant clusters.
+      # See scaling guidance above for adjustments.
+      resources:
+        requests:
+          cpu: 500m
+          memory: 2Gi
+        limits:
+          cpu: 2
+          memory: 4Gi
+      # -- Persistent storage for TSDB. storageClassName is left unset
+      # to use the cluster's default StorageClass.
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 20Gi
+      # -- Select ServiceMonitors and PodMonitors across all namespaces.
+      # Butler substrate targets span multiple namespaces (butler-system,
+      # steward-system, kube-system). Without this, Prometheus only
+      # discovers monitors in its own namespace.
+      serviceMonitorSelectorNilUsesHelmValues: false
+      podMonitorSelectorNilUsesHelmValues: false
+      ruleSelectorNilUsesHelmValues: false
+      # -- Security context for the Prometheus container.
+      securityContext:
+        runAsNonRoot: true
+        fsGroup: 65534
+
+  # -- Disable components not needed for substrate monitoring.
+  # Butler monitors specific substrate targets via its own ServiceMonitors
+  # and PodMonitors. The default kube-prometheus-stack exporters and
+  # dashboards add unnecessary resource overhead.
+  kubeStateMetrics:
+    enabled: false
+  nodeExporter:
+    enabled: false
+  kubeApiServer:
+    enabled: false
+  kubelet:
+    enabled: false
+  kubeControllerManager:
+    enabled: false
+  kubeScheduler:
+    enabled: false
+  kubeProxy:
+    enabled: false
+  kubeEtcd:
+    enabled: false
+  coreDns:
+    enabled: false
