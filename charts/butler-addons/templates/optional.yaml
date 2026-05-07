@@ -40,6 +40,10 @@ spec:
     values:
       prometheus:
         prometheusSpec:
+          externalLabels:
+            cluster: "INJECTED_CLUSTER_NAME"
+          remoteWrite:
+            - url: "INJECTED_METRIC_ENDPOINT"
           retention: 15d
           resources:
             requests:
@@ -147,7 +151,7 @@ spec:
           aggregator:
             type: http
             inputs: ["enrich_metadata"]
-            uri: "AGGREGATOR_ENDPOINT:8080"
+            uri: "http://PIPELINE_LOG_ENDPOINT"
             encoding:
               codec: json
   links:
