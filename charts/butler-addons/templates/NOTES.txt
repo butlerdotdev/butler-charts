@@ -27,10 +27,7 @@ OPTIONAL ADDONS (Observability & Utilities):
   - prometheus-operator   Full monitoring stack
   {{- end }}
   {{- if .Values.optional.addons.vectorAgent.enabled }}
-  - vector-agent          Log/metric collection
-  {{- end }}
-  {{- if .Values.optional.addons.vectorAggregator.enabled }}
-  - vector-aggregator     Log/metric aggregation
+  - vector-agent          Log collection agent
   {{- end }}
   {{- if .Values.optional.addons.victoriaMetrics.enabled }}
   - victoria-metrics      Time-series database

@@ -48,8 +48,7 @@ helm install butler-addons oci://ghcr.io/butlerdotdev/charts/butler-addons \
 | Addon | Category | Description |
 |-------|----------|-------------|
 | prometheus-operator | observability | Full monitoring stack with Grafana |
-| vector-agent | observability | Log/metric collection |
-| vector-aggregator | observability | Log/metric aggregation |
+| vector-agent | observability | Log collection agent (forwards to aggregator) |
 | victoria-metrics | observability | Time series database |
 | victoria-logs | observability | Log management |
 | loki | observability | Log aggregation |

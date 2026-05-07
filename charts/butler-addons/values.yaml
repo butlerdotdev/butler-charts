@@ -127,8 +127,6 @@ optional:
       enabled: true
     vectorAgent:
       enabled: true
-    vectorAggregator:
-      enabled: true
     victoriaMetrics:
       enabled: true
 
