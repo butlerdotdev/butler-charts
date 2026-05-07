@@ -92,7 +92,12 @@ metadata:
     {{- include "butler-addons.labels" . | nindent 4 }}
 spec:
   displayName: Vector Agent
-  description: Lightweight log and metric collector for shipping data to a centralized pipeline
+  description: >-
+    Log collector deployed as a DaemonSet on tenant clusters. Collects
+    Kubernetes pod logs, enriches with node and pod metadata, and forwards
+    to the pipeline aggregator over HTTP. Auto-enrolled by Butler when
+    observability.autoEnroll.vectorAgent is enabled. Deploy the receiving
+    aggregator via the butler-observability-pipeline-reference repo.
   category: observability
   icon: "📡"
   iconData: "PHN2ZyB3aWR0aD0iMTMyIiBoZWlnaHQ9IjEzMiIgdmlld0JveD0iMCAwIDEzMiAxMzIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGcgZmlsbD0iIzEwRTdGRiIgZmlsbC1ydWxlPSJldmVub2RkIj4KICAgIDxwYXRoIGQ9Ik0xMDAuMzI1IDM3aDE0Ljg3N2wtMzUuNDMgNTguNDYtNy4zNS0xMi4wOTd6TTUxLjI0MyA5NS4xNTNMODYuNDg2IDM3aC0xNy41OEw1MS42MDMgNjUuNDMgMzQuMjkyIDM3SDE2eiIvPgogIDwvZz4KPC9zdmc+"
@@ -100,11 +105,11 @@ spec:
   chart:
     repository: https://helm.vector.dev
     name: vector
-    defaultVersion: "0.37.1"
+    defaultVersion: "0.52.0"
     availableVersions:
-      - "0.37.1"
-      - "0.36.0"
-      - "0.35.0"
+      - "0.52.0"
+      - "0.50.0"
+      - "0.48.0"
   defaults:
     namespace: vector
     releaseName: vector-agent
@@ -112,13 +117,15 @@ spec:
     timeout: "10m"
     values:
       role: Agent
+      image:
+        tag: "0.55.0-alpine"
       resources:
         requests:
-          cpu: 50m
-          memory: 64Mi
-        limits:
-          cpu: 200m
+          cpu: 100m
           memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
       customConfig:
         data_dir: /vector-data-dir
         api:
@@ -128,17 +135,21 @@ spec:
         sources:
           kubernetes_logs:
             type: kubernetes_logs
-          journald:
-            type: journald
-          internal_metrics:
-            type: internal_metrics
+        transforms:
+          enrich_metadata:
+            type: remap
+            inputs: ["kubernetes_logs"]
+            source: |
+              .host = .kubernetes.pod_node_name
+              .service = .kubernetes.pod_name
+              .namespace = .kubernetes.pod_namespace
         sinks:
           aggregator:
-            type: vector
-            inputs:
-              - kubernetes_logs
-              - journald
-            address: "AGGREGATOR_ENDPOINT:6000"
+            type: http
+            inputs: ["enrich_metadata"]
+            uri: "AGGREGATOR_ENDPOINT:8080"
+            encoding:
+              codec: json
   links:
     documentation: https://vector.dev/docs
     source: https://github.com/vectordotdev/vector
