@@ -139,8 +139,8 @@ recordingRules:
 
 # -- Alert rules for critical substrate conditions.
 # Rules evaluate in Prometheus regardless of whether Alertmanager is
-# configured. When Alertmanager is enabled in a future phase, these
-# rules are already in place and begin routing immediately.
+# configured. When Alertmanager is enabled, these rules are already
+# in place and begin routing immediately.
 #
 # Thresholds are calibrated for moderate-sized installations (10-30
 # tenants, typical hardware). Adjust via helm upgrade --set without
@@ -212,12 +212,13 @@ kube-prometheus-stack:
   grafana:
     enabled: false
 
-  # -- Alertmanager is disabled in Phase 1.
+  # -- Alertmanager is disabled.
   # Alert rules are defined in PrometheusRule resources and evaluate in
   # Prometheus, but no Alertmanager instance exists to route them.
-  # Alertmanager will be enabled when Butler customer alerting requirements
-  # (PagerDuty, Slack, email, webhook) are captured and a Butler-managed
-  # routing configuration is designed.
+  # Alerts are visible in the Prometheus UI at /alerts but no
+  # notifications are sent. Alertmanager will be enabled when Butler
+  # customer alerting requirements (PagerDuty, Slack, email, webhook)
+  # are captured and a Butler-managed routing configuration is designed.
   alertmanager:
     enabled: false
 

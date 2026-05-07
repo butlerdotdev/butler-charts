@@ -141,7 +141,9 @@ For 50+ tenant installations, monitor `prometheus_tsdb_head_series` and consider
 
 ### Duplicate scrape note
 
-Both butler-controller and Steward have ServiceMonitors in their own charts (`metrics.serviceMonitor.enabled` / `serviceMonitor.enabled`, disabled by default). If you enable those alongside butler-monitoring's ServiceMonitors, Prometheus will scrape the same endpoints twice. This doubles cardinality for those metrics but does not cause correctness issues — recording rules filter by `substrate` label, which is only injected by butler-monitoring's relabelings. Disable one set to avoid the overhead.
+Both butler-controller and Steward have ServiceMonitors in their own charts (`metrics.serviceMonitor.enabled` / `serviceMonitor.enabled`, disabled by default). If you enable those alongside butler-monitoring's ServiceMonitors, Prometheus will scrape the same endpoints twice. This doubles cardinality for those metrics but does not cause correctness issues — recording rules filter by `substrate` label, which is only injected by butler-monitoring's relabelings.
+
+If both are enabled, disable the component chart's ServiceMonitor (not butler-monitoring's). Recording rules and alerts depend on the `substrate` label that butler-monitoring's relabelings inject. Keeping only the component chart's monitor will break all recording rules and alerts for that substrate.
 
 ## Recording Rules
 
@@ -158,6 +160,8 @@ Both butler-controller and Steward have ServiceMonitors in their own charts (`me
 ## Alert Rules
 
 19 alert rules across 5 groups. Alerts evaluate in Prometheus regardless of whether Alertmanager is configured. When Alertmanager is enabled, these rules begin routing immediately.
+
+**Alertmanager is not deployed by default.** Alerts are visible only in the Prometheus UI at `/alerts`. No notifications (PagerDuty, Slack, email) are sent. Operators must check the Prometheus UI manually or deploy Alertmanager separately to receive notifications.
 
 ### Steward etcd alerts
 
@@ -257,6 +261,22 @@ Default thresholds are calibrated for moderate-sized installations (10-30 tenant
 | `kube-prometheus-stack.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage` | string | `20Gi` | Persistent volume size |
 
 See `values.yaml` for the complete configuration reference.
+
+## Coexistence with Existing Prometheus
+
+If your cluster already has kube-prometheus-stack or a standalone Prometheus Operator deployed, butler-monitoring will install a second Prometheus Operator by default. Two operators watching the same CRDs cause reconciliation conflicts.
+
+To use the existing operator:
+
+```yaml
+kube-prometheus-stack:
+  prometheusOperator:
+    enabled: false
+```
+
+Butler-monitoring's Prometheus discovers ServiceMonitors and PodMonitors across all namespaces (`serviceMonitorSelectorNilUsesHelmValues: false`). If the existing Prometheus also has namespace-wide discovery, both instances will scrape butler-monitoring's targets. To partition scrape ownership, use label selectors on each Prometheus instance's `serviceMonitorSelector` and `podMonitorSelector`.
+
+CRD version compatibility: kube-prometheus-stack 65.8.1 installs Prometheus Operator CRDs at a specific version. If the existing CRDs are at a different version, Helm may skip CRD installation (Helm does not update CRDs on upgrade). Ensure CRD versions are compatible or manage CRDs separately.
 
 ## Troubleshooting
 
