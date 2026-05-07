@@ -1,0 +1,235 @@
+{{- if .Values.recordingRules.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "butler-monitoring.fullname" . }}-recording-rules
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "butler-monitoring.labels" . | nindent 4 }}
+spec:
+  groups:
+    # ---------------------------------------------------------------
+    # Steward etcd recording rules
+    #
+    # Pre-compute histogram quantiles for etcd disk operations.
+    # Raw histogram buckets are expensive to aggregate at query time,
+    # especially when multiple etcd instances serve many tenants.
+    # These rules produce single-value series that the console can
+    # query directly.
+    #
+    # The substrate label is injected by ServiceMonitor relabeling
+    # and explicitly set on recording rule output for promtool
+    # lint compliance (disambiguates from management-etcd rules).
+    # ---------------------------------------------------------------
+    - name: butler:steward-etcd
+      interval: 30s
+      rules:
+        # WAL fsync 99th percentile over a 5-minute window.
+        # Answers: "How slow are the slowest WAL writes?"
+        # Sustained values above 10ms indicate disk pressure that will
+        # eventually stall proposals.
+        - record: butler:etcd_disk_wal_fsync_p99:5m
+          expr: |
+            histogram_quantile(0.99,
+              rate(etcd_disk_wal_fsync_duration_seconds_bucket{substrate="steward-etcd"}[5m])
+            )
+          labels:
+            substrate: steward-etcd
+
+        # Backend commit 99th percentile over a 5-minute window.
+        # Answers: "How slow are the slowest backend (boltdb) commits?"
+        # Sustained values above 25ms indicate storage backend
+        # saturation.
+        - record: butler:etcd_disk_backend_commit_p99:5m
+          expr: |
+            histogram_quantile(0.99,
+              rate(etcd_disk_backend_commit_duration_seconds_bucket{substrate="steward-etcd"}[5m])
+            )
+          labels:
+            substrate: steward-etcd
+
+        # Proposal failure rate per second over a 5-minute window.
+        # Answers: "Are consensus proposals failing?"
+        # Any sustained non-zero value means the cluster is losing
+        # writes.
+        - record: butler:etcd_proposals_failed_rate:5m
+          expr: |
+            rate(etcd_server_proposals_failed_total{substrate="steward-etcd"}[5m])
+          labels:
+            substrate: steward-etcd
+
+        # Proposal apply lag: committed minus applied.
+        # Answers: "Is the state machine falling behind consensus?"
+        # A growing gap means the apply goroutine is blocked, usually
+        # by slow backend commits.
+        - record: butler:etcd_proposals_apply_lag
+          expr: |
+            etcd_server_proposals_committed_total{substrate="steward-etcd"}
+            -
+            etcd_server_proposals_applied_total{substrate="steward-etcd"}
+          labels:
+            substrate: steward-etcd
+
+        # Database size in bytes.
+        # Answers: "How full is the etcd database?"
+        # Approaching the etcd quota (default 2GiB) triggers alarms
+        # that block all writes.
+        - record: butler:etcd_db_size_bytes
+          expr: |
+            etcd_mvcc_db_total_size_in_bytes{substrate="steward-etcd"}
+          labels:
+            substrate: steward-etcd
+
+    # ---------------------------------------------------------------
+    # Management etcd recording rules
+    #
+    # Same metrics as steward-etcd but for the management cluster's
+    # own etcd. Differentiated by substrate label.
+    # ---------------------------------------------------------------
+    - name: butler:management-etcd
+      interval: 30s
+      rules:
+        - record: butler:etcd_disk_wal_fsync_p99:5m
+          expr: |
+            histogram_quantile(0.99,
+              rate(etcd_disk_wal_fsync_duration_seconds_bucket{substrate="management-etcd"}[5m])
+            )
+          labels:
+            substrate: management-etcd
+
+        - record: butler:etcd_disk_backend_commit_p99:5m
+          expr: |
+            histogram_quantile(0.99,
+              rate(etcd_disk_backend_commit_duration_seconds_bucket{substrate="management-etcd"}[5m])
+            )
+          labels:
+            substrate: management-etcd
+
+        - record: butler:etcd_proposals_failed_rate:5m
+          expr: |
+            rate(etcd_server_proposals_failed_total{substrate="management-etcd"}[5m])
+          labels:
+            substrate: management-etcd
+
+        - record: butler:etcd_proposals_apply_lag
+          expr: |
+            etcd_server_proposals_committed_total{substrate="management-etcd"}
+            -
+            etcd_server_proposals_applied_total{substrate="management-etcd"}
+          labels:
+            substrate: management-etcd
+
+        - record: butler:etcd_db_size_bytes
+          expr: |
+            etcd_mvcc_db_total_size_in_bytes{substrate="management-etcd"}
+          labels:
+            substrate: management-etcd
+
+    # ---------------------------------------------------------------
+    # butler-controller recording rules
+    #
+    # Pre-compute reconcile duration quantiles and error rates.
+    # The console's controller health panel queries these directly.
+    # ---------------------------------------------------------------
+    - name: butler:controller
+      interval: 30s
+      rules:
+        # Reconcile duration 99th percentile by controller.
+        # Answers: "How slow are the slowest reconciliations?"
+        # Sustained values above 30s indicate a controller is
+        # struggling (provider API latency, API server contention).
+        - record: butler:controller_reconcile_duration_p99:5m
+          expr: |
+            histogram_quantile(0.99,
+              rate(controller_runtime_reconcile_time_seconds_bucket{substrate="butler-controller"}[5m])
+            )
+
+        # Reconcile error ratio by controller.
+        # Answers: "What fraction of reconciliations are failing?"
+        # Values above 0.05 (5%) warrant investigation.
+        - record: butler:controller_reconcile_error_ratio:5m
+          expr: |
+            rate(controller_runtime_reconcile_errors_total{substrate="butler-controller"}[5m])
+            /
+            rate(controller_runtime_reconcile_total{substrate="butler-controller"}[5m])
+
+        # Workqueue depth by controller.
+        # Answers: "How much work is queued but not yet processed?"
+        # A sustained non-zero depth means reconciliation throughput
+        # is not keeping up with events.
+        - record: butler:controller_workqueue_depth
+          expr: |
+            workqueue_depth{substrate="butler-controller"}
+
+    # ---------------------------------------------------------------
+    # Steward controller recording rules
+    # ---------------------------------------------------------------
+    - name: butler:steward
+      interval: 30s
+      rules:
+        - record: butler:steward_reconcile_duration_p99:5m
+          expr: |
+            histogram_quantile(0.99,
+              rate(controller_runtime_reconcile_time_seconds_bucket{substrate="steward"}[5m])
+            )
+
+        - record: butler:steward_reconcile_error_ratio:5m
+          expr: |
+            rate(controller_runtime_reconcile_errors_total{substrate="steward"}[5m])
+            /
+            rate(controller_runtime_reconcile_total{substrate="steward"}[5m])
+
+        - record: butler:steward_workqueue_depth
+          expr: |
+            workqueue_depth{substrate="steward"}
+
+    # ---------------------------------------------------------------
+    # Tenant control plane recording rules
+    #
+    # Pre-compute per-tenant apiserver latency quantiles.
+    # These are the most expensive queries in the system: histogram
+    # quantiles across N tenants times M verbs times K resources.
+    # Recording rules collapse the bucket dimension at evaluation
+    # time so console queries read a single gauge per tenant.
+    #
+    # The tenant and tenant_namespace labels come from PodMonitor
+    # relabelings. These rules preserve both for correlation.
+    #
+    # These rules evaluate even when the PodMonitor is disabled
+    # (no matching series = no output). When tenant CP scraping
+    # becomes functional, these rules activate automatically.
+    # ---------------------------------------------------------------
+    - name: butler:tenant-cp
+      interval: 30s
+      rules:
+        # Tenant apiserver request latency 99th percentile by verb.
+        # Answers: "Which tenants have slow API responses?"
+        # Aggregates across resources, preserves verb for read/write
+        # breakdown.
+        - record: butler:apiserver_request_duration_p99:5m
+          expr: |
+            histogram_quantile(0.99,
+              sum by (tenant, tenant_namespace, verb, le) (
+                rate(apiserver_request_duration_seconds_bucket[5m])
+              )
+            )
+
+        # Tenant apiserver request error rate (5xx responses).
+        # Answers: "Which tenants are seeing server errors?"
+        - record: butler:apiserver_request_error_rate:5m
+          expr: |
+            sum by (tenant, tenant_namespace) (
+              rate(apiserver_request_total{code=~"5.."}[5m])
+            )
+
+        # Tenant apiserver inflight requests.
+        # Answers: "Which tenants are saturating their apiserver?"
+        # Compare against apiserver's --max-requests-inflight
+        # (default 400) and --max-mutating-requests-inflight
+        # (default 200).
+        - record: butler:apiserver_inflight_requests
+          expr: |
+            sum by (tenant, tenant_namespace, request_kind) (
+              apiserver_current_inflight_requests
+            )
+{{- end }}
