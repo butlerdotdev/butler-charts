@@ -167,6 +167,21 @@ Releases are automated via GitHub Actions:
    - Push to GHCR OCI registry
    - Create GitHub release
 
+## Multi-Chart PRs
+
+When a PR modifies multiple charts (e.g., both `charts/butler-controller/` and `charts/butler-addons/`), each chart needs its own version bump and its own release tag.
+
+The release workflow is tag-triggered with a glob matching `butler-*-v*`. A single tag releases a single chart — there is no "release everything modified in this PR" mechanism.
+
+**Multi-chart PR checklist:**
+
+- [ ] Identify every chart modified by the PR
+- [ ] Bump `Chart.yaml` version in each modified chart
+- [ ] After merge, create a release tag for each modified chart
+- [ ] PR description lists all charts being released and their target versions
+
+If a PR modifies chart templates but only bumps and tags one chart, the other chart's changes land on main without a corresponding release. Downstream consumers pulling from the OCI registry won't see those changes until a release is tagged for that chart.
+
 ## Subchart Dependencies
 
 butler-charts vendors subchart dependencies. When a chart in this repo depends on an external Helm chart (e.g., kube-prometheus-stack), the subchart `.tgz` is committed alongside the parent chart at `charts/<parent>/charts/`.
