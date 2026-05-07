@@ -1,0 +1,34 @@
+{{- if .Values.substrates.steward.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "butler-monitoring.fullname" . }}-steward
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "butler-monitoring.labels" . | nindent 4 }}
+spec:
+  # Steward controller exposes unauthenticated controller-runtime metrics
+  # over HTTP on port 8080. Scrapes handler execution time histograms,
+  # reconcile counters, and workqueue metrics.
+  #
+  # If Steward's own chart ServiceMonitor is also enabled
+  # (serviceMonitor.enabled), disable one to avoid duplicate scrapes.
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: {{ .Values.substrates.steward.interval }}
+      scrapeTimeout: {{ .Values.substrates.steward.scrapeTimeout }}
+      relabelings:
+        - targetLabel: substrate
+          replacement: steward
+      metricRelabelings:
+        - action: keep
+          sourceLabels: [__name__]
+          regex: controller_runtime_reconcile_total|controller_runtime_reconcile_errors_total|controller_runtime_reconcile_time_seconds_bucket|workqueue_depth|workqueue_adds_total|workqueue_queue_duration_seconds_bucket|workqueue_unfinished_work_seconds|process_resident_memory_bytes|process_cpu_seconds_total
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: steward
+  namespaceSelector:
+    matchNames:
+      - {{ .Values.substrates.steward.namespace }}
+{{- end }}

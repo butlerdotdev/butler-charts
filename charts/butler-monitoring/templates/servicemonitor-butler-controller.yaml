@@ -1,0 +1,35 @@
+{{- if .Values.substrates.butlerController.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "butler-monitoring.fullname" . }}-butler-controller
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "butler-monitoring.labels" . | nindent 4 }}
+spec:
+  # butler-controller exposes unauthenticated controller-runtime metrics
+  # over HTTP on port 8080. Scrapes reconcile duration, cluster phase,
+  # IPAM pool utilization, provider capacity, and controller-runtime
+  # workqueue metrics.
+  #
+  # If butler-controller's own chart ServiceMonitor is also enabled
+  # (metrics.serviceMonitor.enabled), disable one to avoid duplicate scrapes.
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: {{ .Values.substrates.butlerController.interval }}
+      scrapeTimeout: {{ .Values.substrates.butlerController.scrapeTimeout }}
+      relabelings:
+        - targetLabel: substrate
+          replacement: butler-controller
+      metricRelabelings:
+        - action: keep
+          sourceLabels: [__name__]
+          regex: controller_runtime_reconcile_total|controller_runtime_reconcile_errors_total|controller_runtime_reconcile_time_seconds_bucket|workqueue_depth|workqueue_adds_total|workqueue_queue_duration_seconds_bucket|workqueue_unfinished_work_seconds|process_resident_memory_bytes|process_cpu_seconds_total|butler_.*
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: butler-controller
+  namespaceSelector:
+    matchNames:
+      - {{ .Values.substrates.butlerController.namespace }}
+{{- end }}

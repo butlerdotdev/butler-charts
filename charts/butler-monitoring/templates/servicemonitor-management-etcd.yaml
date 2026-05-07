@@ -1,0 +1,86 @@
+{{- if and .Values.substrates.managementEtcd.enabled .Values.substrates.managementEtcd.addresses }}
+# Headless Service (no selector) + Endpoints for static etcd targets.
+# Management cluster etcd is not a Kubernetes workload — it runs on
+# control plane nodes or as a systemd service. The Endpoints resource
+# provides Prometheus with static scrape targets.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "butler-monitoring.fullname" . }}-mgmt-etcd
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "butler-monitoring.labels" . | nindent 4 }}
+    app.kubernetes.io/component: management-etcd
+spec:
+  clusterIP: None
+  ports:
+    - name: metrics
+      port: {{ .Values.substrates.managementEtcd.port }}
+      protocol: TCP
+      targetPort: {{ .Values.substrates.managementEtcd.port }}
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ include "butler-monitoring.fullname" . }}-mgmt-etcd
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "butler-monitoring.labels" . | nindent 4 }}
+    app.kubernetes.io/component: management-etcd
+subsets:
+  - addresses:
+      {{- range .Values.substrates.managementEtcd.addresses }}
+      - ip: {{ . | quote }}
+      {{- end }}
+    ports:
+      - name: metrics
+        port: {{ .Values.substrates.managementEtcd.port }}
+        protocol: TCP
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "butler-monitoring.fullname" . }}-mgmt-etcd
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "butler-monitoring.labels" . | nindent 4 }}
+spec:
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: {{ .Values.substrates.managementEtcd.interval }}
+      scrapeTimeout: {{ .Values.substrates.managementEtcd.scrapeTimeout }}
+      scheme: {{ .Values.substrates.managementEtcd.scheme }}
+      relabelings:
+        - targetLabel: substrate
+          replacement: management-etcd
+      {{- if .Values.substrates.managementEtcd.tlsConfig.certSecretName }}
+      tlsConfig:
+        insecureSkipVerify: {{ .Values.substrates.managementEtcd.tlsConfig.insecureSkipVerify }}
+        ca:
+          secret:
+            name: {{ .Values.substrates.managementEtcd.tlsConfig.certSecretName }}
+            key: ca.crt
+        cert:
+          secret:
+            name: {{ .Values.substrates.managementEtcd.tlsConfig.certSecretName }}
+            key: tls.crt
+        keySecret:
+          name: {{ .Values.substrates.managementEtcd.tlsConfig.certSecretName }}
+          key: tls.key
+      {{- else if .Values.substrates.managementEtcd.tlsConfig.insecureSkipVerify }}
+      tlsConfig:
+        insecureSkipVerify: true
+      {{- end }}
+      metricRelabelings:
+        - action: keep
+          sourceLabels: [__name__]
+          regex: etcd_server_has_leader|etcd_server_leader_changes_seen_total|etcd_server_proposals_failed_total|etcd_server_proposals_committed_total|etcd_server_proposals_applied_total|etcd_server_proposals_pending|etcd_mvcc_db_total_size_in_bytes|etcd_disk_wal_fsync_duration_seconds_bucket|etcd_disk_backend_commit_duration_seconds_bucket|etcd_network_peer_sent_failures_total|etcd_network_peer_received_failures_total|process_resident_memory_bytes|process_cpu_seconds_total|grpc_server_handled_total
+  selector:
+    matchLabels:
+      {{- include "butler-monitoring.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: management-etcd
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+{{- end }}
