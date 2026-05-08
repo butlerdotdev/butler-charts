@@ -148,6 +148,10 @@ spec:
               .host = .kubernetes.pod_node_name
               .service = .kubernetes.pod_name
               .namespace = .kubernetes.pod_namespace
+              .cluster = "MANUAL_INSTALL_SET_CLUSTER_NAME"
+              .tenant_namespace = "MANUAL_INSTALL_SET_TENANT_NAMESPACE"
+              .environment = "MANUAL_INSTALL_SET_ENVIRONMENT"
+              .provider_type = "MANUAL_INSTALL_SET_PROVIDER_TYPE"
         sinks:
           aggregator:
             type: http
@@ -390,6 +394,20 @@ spec:
               http:
                 endpoint: "0.0.0.0:4318"
         processors:
+          resource:
+            attributes:
+              - key: k8s.cluster.name
+                value: "MANUAL_INSTALL_SET_CLUSTER_NAME"
+                action: upsert
+              - key: k8s.namespace.name
+                value: "MANUAL_INSTALL_SET_TENANT_NAMESPACE"
+                action: upsert
+              - key: butler.environment
+                value: "MANUAL_INSTALL_SET_ENVIRONMENT"
+                action: upsert
+              - key: butler.provider_type
+                value: "MANUAL_INSTALL_SET_PROVIDER_TYPE"
+                action: upsert
           batch:
             timeout: 5s
             send_batch_size: 1024
@@ -405,7 +423,7 @@ spec:
           pipelines:
             traces:
               receivers: [otlp]
-              processors: [memory_limiter, batch]
+              processors: [resource, memory_limiter, batch]
               exporters: [otlp]
   links:
     documentation: https://opentelemetry.io/docs/collector
