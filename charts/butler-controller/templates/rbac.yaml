@@ -37,6 +37,9 @@ rules:
   - apiGroups: [""]
     resources: ["services"]
     verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
   
   # Butler CRDs - TenantCluster
   - apiGroups: ["butler.butlerlabs.dev"]
