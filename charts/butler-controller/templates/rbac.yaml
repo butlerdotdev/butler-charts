@@ -80,7 +80,15 @@ rules:
   - apiGroups: ["butler.butlerlabs.dev"]
     resources: ["teams/status"]
     verbs: ["get", "update", "patch"]
-  
+
+  # Butler CRDs - User (User-Teams reconciler)
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["users"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["users/status"]
+    verbs: ["get", "update", "patch"]
+
   # Butler CRDs - ButlerConfig
   - apiGroups: ["butler.butlerlabs.dev"]
     resources: ["butlerconfigs"]
