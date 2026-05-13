@@ -31,6 +31,10 @@ spec:
   defaultTimeServers:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- with .Values.config.gitProvider }}
+  gitProvider:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- with .Values.config.observability }}
   observability:
     {{- toYaml . | nindent 4 }}
