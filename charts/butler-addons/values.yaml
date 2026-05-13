@@ -33,6 +33,18 @@ config:
   #   cilium: "1.17.0"
   #   metallb: "0.14.9"
 
+  # -- Git provider configuration for tenant cluster GitOps repos (optional).
+  # When configured, butler-controller creates and manages Git repositories
+  # for each TenantCluster. Changes made via the butler-console UI will be
+  # reverted at the next Helm reconcile if declared here.
+  #
+  # gitProvider:
+  #   type: gitlab
+  #   url: "https://gitlab.example.com"
+  #   organization: "my-org"
+  #   secretRef:
+  #     name: butler-git-credentials
+
   # -- Default NTP servers for Talos worker nodes (optional).
   # Used as fallback if a TenantCluster or ProviderConfig doesn't
   # specify time servers explicitly. Leave unset to fall through
