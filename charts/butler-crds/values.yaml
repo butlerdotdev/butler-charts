@@ -41,6 +41,8 @@ crds:
   workspace: true
   # -- Install WorkspaceTemplate CRD (workspace templates)
   workspaceTemplate: true
+  # -- Install ClusterCreationPolicy CRD (ADR-018, admin-curated create-cluster option lists)
+  clusterCreationPolicy: true
 
 # -- CLI authentication RBAC
 cliAuth:
