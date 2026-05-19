@@ -108,6 +108,14 @@ rules:
     resources: ["providerconfigs/finalizers"]
     verbs: ["update"]
 
+  # Butler CRDs - ClusterCreationPolicy
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["clustercreationpolicies"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["butler.butlerlabs.dev"]
+    resources: ["clustercreationpolicies/status"]
+    verbs: ["get", "update", "patch"]
+
   # Butler CRDs - NetworkPool
   - apiGroups: ["butler.butlerlabs.dev"]
     resources: ["networkpools"]
