@@ -111,4 +111,24 @@ webhooks:
         resources:
           - providerconfigs
     sideEffects: None
+  - name: vclustercreationpolicy.kb.io
+    admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "butler-controller.fullname" . }}-webhook
+        namespace: {{ .Release.Namespace }}
+        path: /validate-butler-butlerlabs-dev-v1alpha1-clustercreationpolicy
+    failurePolicy: Fail
+    rules:
+      - apiGroups:
+          - butler.butlerlabs.dev
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - clustercreationpolicies
+    sideEffects: None
 {{- end }}
