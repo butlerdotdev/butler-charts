@@ -157,6 +157,21 @@ rules:
     resources: ["deployments"]
     resourceNames: ["steward"]
     verbs: ["get", "patch"]
+---
+# Role for persisting GitOps configuration to butler-gitops-config ConfigMap.
+# butler-server's gitops handler reads and writes this single ConfigMap in
+# the system namespace; cluster-wide configmap write would overshoot.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "butler-console.fullname" . }}-gitops-config
+  namespace: {{ .Values.server.config.systemNamespace }}
+  labels:
+    {{- include "butler-console.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 {{- if .Values.server.cliAuth.enabled }}
 ---
 # CLI device flow authentication requires managing ServiceAccounts and RBAC.
@@ -217,6 +232,22 @@ subjects:
     name: {{ include "butler-console.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
 {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "butler-console.fullname" . }}-gitops-config
+  namespace: {{ .Values.server.config.systemNamespace }}
+  labels:
+    {{- include "butler-console.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "butler-console.fullname" . }}-gitops-config
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "butler-console.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
 ---
 # butler-api-users (ADR-010): the synthetic group butler-server
 # attaches to Impersonate-Group on every user-mutation call. Binding
