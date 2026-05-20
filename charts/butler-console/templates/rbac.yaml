@@ -143,6 +143,31 @@ subjects:
     name: {{ include "butler-console.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
 ---
+# ClusterRoleBinding for the mgmt-cluster GitOps Enable flow.
+# butler-server's EnableManagementGitOps handler runs `flux bootstrap`
+# using the in-cluster SA. flux bootstrap creates CRDs cluster-wide and
+# binds Flux controllers via ClusterRoleBindings, which requires the
+# escalate/bind verb on rbac (Kubernetes' privilege-escalation primitive).
+# Any narrower enumeration including escalate is functionally equivalent
+# to cluster-admin. Butler is the platform admin tool for the cluster,
+# so the binding matches operational reality, follows the chart's
+# existing convention of binding to built-in ClusterRoles (cli-auth
+# does the same shape elsewhere).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "butler-console.fullname" . }}-flux-bootstrap
+  labels:
+    {{- include "butler-console.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "butler-console.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+---
 # Role for restarting Steward deployment during certificate rotation
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
