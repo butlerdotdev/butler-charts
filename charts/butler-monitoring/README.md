@@ -159,7 +159,7 @@ If both are enabled, disable the component chart's ServiceMonitor (not butler-mo
 
 ## Alert Rules
 
-19 alert rules across 5 groups. Alerts evaluate in Prometheus regardless of whether Alertmanager is configured. When Alertmanager is enabled, these rules begin routing immediately.
+21 alert rules across 5 groups. Alerts evaluate in Prometheus regardless of whether Alertmanager is configured. When Alertmanager is enabled, these rules begin routing immediately.
 
 **Alertmanager is not deployed by default.** Alerts are visible only in the Prometheus UI at `/alerts`. No notifications (PagerDuty, Slack, email) are sent. Operators must check the Prometheus UI manually or deploy Alertmanager separately to receive notifications.
 
@@ -168,6 +168,7 @@ If both are enabled, disable the component chart's ServiceMonitor (not butler-mo
 | Alert | Severity | Threshold | For |
 |-------|----------|-----------|-----|
 | `StewardEtcdNoLeader` | critical | `etcd_server_has_leader == 0` | 1m |
+| `StewardEtcdUnreachable` | critical | `absent(etcd_server_has_leader)` | 2m |
 | `StewardEtcdHighLeaderChanges` | warning | Leader changes in 15m > 3 | 5m |
 | `StewardEtcdWalFsyncSlow` | warning | WAL fsync p99 > 50ms | 5m |
 | `StewardEtcdWalFsyncCritical` | critical | WAL fsync p99 > 200ms | 5m |
@@ -180,6 +181,7 @@ If both are enabled, disable the component chart's ServiceMonitor (not butler-mo
 | Alert | Severity | Threshold | For |
 |-------|----------|-----------|-----|
 | `ManagementEtcdNoLeader` | critical | `etcd_server_has_leader == 0` | 1m |
+| `ManagementEtcdUnreachable` | critical | `absent(etcd_server_has_leader)` | 2m |
 | `ManagementEtcdWalFsyncSlow` | warning | WAL fsync p99 > 50ms | 5m |
 | `ManagementEtcdWalFsyncCritical` | critical | WAL fsync p99 > 200ms | 5m |
 | `ManagementEtcdProposalFailures` | critical | Proposal failure rate > 0 | 5m |

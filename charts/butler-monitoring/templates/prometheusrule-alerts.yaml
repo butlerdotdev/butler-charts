@@ -35,6 +35,25 @@ spec:
               backed by this instance cannot process writes. Check etcd
               peer connectivity and quorum.
 
+        # Metric absence indicates complete scrape failure. A missing
+        # series cannot satisfy `== 0`, so the NoLeader alert above
+        # cannot fire when etcd is fully unreachable.
+        - alert: StewardEtcdUnreachable
+          expr: |
+            absent(etcd_server_has_leader{substrate="steward-etcd"})
+          for: 2m
+          labels:
+            severity: critical
+            substrate: steward-etcd
+          annotations:
+            summary: Steward etcd metrics are absent.
+            description: >-
+              No etcd_server_has_leader samples received for substrate
+              steward-etcd in the last 2 minutes. The etcd instance is
+              likely fully unreachable. All tenant control planes backed
+              by this instance are frozen. Check pod status, service
+              endpoints, and Prometheus scrape configuration.
+
         # Frequent leader changes indicate network instability or
         # resource contention between etcd peers.
         - alert: StewardEtcdHighLeaderChanges
@@ -155,6 +174,24 @@ spec:
               no leader for more than 1 minute. Butler controller
               reconciliation, console access, and tenant lifecycle
               operations are stalled.
+
+        - alert: ManagementEtcdUnreachable
+          expr: |
+            absent(etcd_server_has_leader{substrate="management-etcd"})
+          for: 2m
+          labels:
+            severity: critical
+            substrate: management-etcd
+          annotations:
+            summary: Management cluster etcd metrics are absent.
+            description: >-
+              No etcd_server_has_leader samples received for substrate
+              management-etcd in the last 2 minutes. The etcd instance
+              is likely fully unreachable. Butler controller
+              reconciliation, console access, and tenant lifecycle
+              operations are stalled. Check endpoint addresses
+              (substrates.managementEtcd.addresses), scrape target
+              health, and mTLS certificate validity.
 
         - alert: ManagementEtcdWalFsyncSlow
           expr: |
