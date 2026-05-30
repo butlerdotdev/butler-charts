@@ -21,6 +21,7 @@ declare -a CRD_MAPPINGS=(
     "butler.butlerlabs.dev_addondefinitions.yaml:addonDefinition:addondefinition-crd.yaml"
     "butler.butlerlabs.dev_butlerconfigs.yaml:butlerConfig:butlerconfig-crd.yaml"
     "butler.butlerlabs.dev_clusterbootstraps.yaml:clusterBootstrap:clusterbootstrap-crd.yaml"
+    "butler.butlerlabs.dev_clustercreationpolicies.yaml:clusterCreationPolicy:clustercreationpolicy-crd.yaml"
     "butler.butlerlabs.dev_identityproviders.yaml:identityProvider:identityprovider-crd.yaml"
     "butler.butlerlabs.dev_imagesyncs.yaml:imageSync:imagesync-crd.yaml"
     "butler.butlerlabs.dev_ipallocations.yaml:ipAllocation:ipallocation-crd.yaml"
