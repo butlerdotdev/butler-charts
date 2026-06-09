@@ -13,7 +13,7 @@ serviceAccount:
   name: ""
 
 image:
-  # -- Install image from specific repo 
+  # -- Install image from specific repo
   repository: quay.io/coreos/etcd
   # -- Install image with specific tag, overwrite the tag in the chart
   tag: ""
@@ -49,8 +49,8 @@ clusterDomain: "cluster.local"
 
 # -- A list of extra arguments to add to the etcd default ones
 extraArgs: []
-#- --log-level=warn
-#- --logger=zap
+# - --log-level=warn
+# - --logger=zap
 
 # -- Interpret 'auto-compaction-retention' one of: periodic|revision. Use 'periodic' for duration based retention, 'revision' for revision number based retention.
 autoCompactionMode: periodic
@@ -61,11 +61,11 @@ autoCompactionRetention: 5m
 # -- Number of committed transactions to trigger a snapshot to disk.
 snapshotCount: "50000"
 
-# -- Raise alarms when backend size exceeds the given quota. It will put the cluster into a maintenance mode which only accepts key reads and deletes. 
-quotaBackendBytes: "8589934592" # 8Gi
+# -- Raise alarms when backend size exceeds the given quota. It will put the cluster into a maintenance mode which only accepts key reads and deletes.
+quotaBackendBytes: "8589934592"  # 8Gi
 
 persistentVolumeClaim:
-  # -- The size of persistent storage for etcd data 
+  # -- The size of persistent storage for etcd data
   size: 8Gi
   # -- A specific storage class
   storageClassName: ""
@@ -105,26 +105,31 @@ nodeSelector:
 # -- Kubernetes node taints that the etcd pods would tolerate
 tolerations: []
 
-# -- Kubernetes affinity rules to apply to etcd pods
-affinity: {}
-  # podAntiAffinity:
-  #   requiredDuringSchedulingIgnoredDuringExecution:
-  #   - labelSelector:
-  #       matchExpressions:
-  #       - key: app.kubernetes.io/instance
-  #         operator: In
-  #         values:
-  #         -  steward-etcd
-  #     topologyKey: "kubernetes.io/hostname"
+# -- Kubernetes affinity rules to apply to etcd pods.
+# requiredDuringScheduling hard-guarantees that no two etcd members share a node:
+# a quorum store must never co-locate members, since losing one node would then
+# drop 2 of 3 members and lose quorum. IgnoredDuringExecution constrains only
+# scheduling, so existing pods are not evicted (they spread on the next reschedule).
+# Trade-off at exactly 3 schedulable nodes (one per member): a node loss leaves its
+# member Pending until the node returns instead of co-locating. Pending is the safe
+# failure mode for a quorum store. Assumes >=3 schedulable nodes; switch to
+# preferredDuringScheduling only if the cluster cannot guarantee that.
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: steward-etcd
+        topologyKey: kubernetes.io/hostname
 
 # -- Kubernetes topology spread constraints to apply to etcd pods
 topologySpreadConstraints: []
-#- maxSkew: 1
-#  topologyKey: topology.kubernetes.io/zone
-#  whenUnsatisfiable: DoNotSchedule
-#  labelSelector:
-#    matchLabels:
-#      application: steward-etcd
+# - maxSkew: 1
+#   topologyKey: topology.kubernetes.io/zone
+#   whenUnsatisfiable: DoNotSchedule
+#   labelSelector:
+#     matchLabels:
+#       application: steward-etcd
 
 datastore:
   # -- Create a datastore custom resource for Steward
@@ -132,7 +137,7 @@ datastore:
   # -- Name of Steward datastore, set to fully qualified etcd name when null or not provided
   name: ""
   # -- Expose the headless service endpoints in the datastore. Set to false to expose with regular service.
-  headless: true # https://github.com/butlerlabs/steward/issues/856
+  headless: true  # https://github.com/butlerlabs/steward/issues/856
   # -- Assign additional Annotations to the datastore
   annotations: {}
   #  helm.sh/resource-policy: keep
@@ -166,12 +171,12 @@ serviceMonitor:
     metricRelabelings: []
     # -- Set relabelings for the endpoint of the serviceMonitor
     relabelings: []
-    #- action: replace
-    #  regex: (.+)
-    #  replacement: $1
-    #  sourceLabels:
-    #  - __meta_kubernetes_pod_name
-    #  targetLabel: member
+    # - action: replace
+    #   regex: (.+)
+    #   replacement: $1
+    #   sourceLabels:
+    #   - __meta_kubernetes_pod_name
+    #   targetLabel: member
     #
 
 alerts:
@@ -219,7 +224,7 @@ jobs:
     tag: "latest"
   etcd:
     image: quay.io/coreos/etcd
-    tag: v3.5.6 # latest container image with shell available!
+    tag: v3.5.6  # latest container image with shell available!
     pullPolicy: IfNotPresent
 
 selfSignedCertificates:
@@ -238,7 +243,7 @@ certManager:
     create: true
     nameOverride: ""
     # -- CertManager etcd CA validity
-    validity: 87600h # 10 years
+    validity: 87600h  # 10 years
   serverCert:
     create: true
     nameOverride: ""

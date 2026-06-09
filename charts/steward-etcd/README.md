@@ -1,8 +1,8 @@
 # steward-etcd
 
-![Version: 0.14.0](https://img.shields.io/badge/Version-0.14.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.5.17](https://img.shields.io/badge/AppVersion-3.5.17-informational?style=flat-square)
+![Version: 0.15.0](https://img.shields.io/badge/Version-0.15.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.5.17](https://img.shields.io/badge/AppVersion-3.5.17-informational?style=flat-square)
 
-Helm chart for deploying a multi-tenant `etcd` cluster.
+Helm chart for deploying a multi-tenant etcd cluster for Steward
 
 [Steward](https://github.com/butlerlabs/steward) turns any Kubernetes cluster into an _admin cluster_ to orchestrate other Kubernetes clusters called _tenant clusters_.
 The Control Plane of a _tenant cluster_ is made of regular pods running in a namespace of the _admin cluster_ instead of a dedicated set of Virtual Machines.
@@ -55,7 +55,7 @@ Here the values you can override:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| affinity | object | `{}` | Kubernetes affinity rules to apply to etcd pods |
+| affinity | object | `{"podAntiAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":[{"labelSelector":{"matchLabels":{"app.kubernetes.io/name":"steward-etcd"}},"topologyKey":"kubernetes.io/hostname"}]}}` | Kubernetes affinity rules to apply to etcd pods. requiredDuringScheduling hard-guarantees that no two etcd members share a node: a quorum store must never co-locate members, since losing one node would then drop 2 of 3 members and lose quorum. IgnoredDuringExecution constrains only scheduling, so existing pods are not evicted (they spread on the next reschedule). Trade-off at exactly 3 schedulable nodes (one per member): a node loss leaves its member Pending until the node returns instead of co-locating. Pending is the safe failure mode for a quorum store. Assumes >=3 schedulable nodes; switch to preferredDuringScheduling only if the cluster cannot guarantee that. |
 | alerts.annotations | object | `{}` | Assign additional Annotations |
 | alerts.enabled | bool | `false` | Enable alerts for Alertmanager |
 | alerts.labels | object | `{}` | Assign additional labels according to Prometheus' Alerts matching labels |
@@ -93,8 +93,8 @@ Here the values you can override:
 | jobs.etcd.image | string | `"quay.io/coreos/etcd"` |  |
 | jobs.etcd.pullPolicy | string | `"IfNotPresent"` |  |
 | jobs.etcd.tag | string | `"v3.5.6"` |  |
-| jobs.kubectl.image | string | `"butlerlabs/kubectl"` |  |
-| jobs.kubectl.tag | string | `""` |  |
+| jobs.kubectl.image | string | `"bitnami/kubectl"` |  |
+| jobs.kubectl.tag | string | `"latest"` |  |
 | jobs.nodeSelector | object | `{"kubernetes.io/os":"linux"}` | Kubernetes node selector rules for ancillary jobs |
 | jobs.tolerations | list | `[]` | Kubernetes node taints that the ancillary jobs would tolerate |
 | livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/livez","port":2381,"scheme":"HTTP"},"initialDelaySeconds":10,"periodSeconds":10,"timeoutSeconds":15}` | The livenessProbe for the etcd container |
@@ -131,7 +131,7 @@ Here the values you can override:
 | serviceMonitor.serviceAccount.name | string | `"kube-prometheus-stack-prometheus"` | ServiceAccount name |
 | serviceMonitor.serviceAccount.namespace | string | `"monitoring-system"` | ServiceAccount namespace |
 | serviceMonitor.targetLabels | list | `[]` | Set targetLabels for the serviceMonitor |
-| snapshotCount | string | `"10000"` | Number of committed transactions to trigger a snapshot to disk. |
+| snapshotCount | string | `"50000"` | Number of committed transactions to trigger a snapshot to disk. |
 | tolerations | list | `[]` | Kubernetes node taints that the etcd pods would tolerate |
 | topologySpreadConstraints | list | `[]` | Kubernetes topology spread constraints to apply to etcd pods |
 
@@ -139,7 +139,8 @@ Here the values you can override:
 
 | Name | Email | Url |
 | ---- | ------ | --- |
+| Andrew Bagan | <andrew@butlerlabs.dev> | <https://butlerlabs.dev> |
 
 ## Source Code
 
-* <https://github.com/butlerlabs/steward-etcd>
+* <https://github.com/butlerdotdev/butler-charts>
