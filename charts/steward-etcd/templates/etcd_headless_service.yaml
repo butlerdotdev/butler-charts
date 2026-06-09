@@ -7,6 +7,12 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   clusterIP: None
+  # A member rejoining the cluster is NotReady until it joins, but it cannot join
+  # without a DNS A record to discover its peers; a headless Service withholds
+  # records for NotReady endpoints unless this is true, which deadlocks a single
+  # member rejoin (hit during the 2026-06-08 etcd-1 recovery). bitnami/etcd and
+  # etcd-operator default this to true for the same reason.
+  publishNotReadyAddresses: true
   ports:
     - port: {{ .Values.clientPort }}
       name: client

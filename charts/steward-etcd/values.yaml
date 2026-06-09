@@ -105,17 +105,22 @@ nodeSelector:
 # -- Kubernetes node taints that the etcd pods would tolerate
 tolerations: []
 
-# -- Kubernetes affinity rules to apply to etcd pods
-affinity: {}
-  # podAntiAffinity:
-  #   requiredDuringSchedulingIgnoredDuringExecution:
-  #   - labelSelector:
-  #       matchExpressions:
-  #       - key: app.kubernetes.io/instance
-  #         operator: In
-  #         values:
-  #         -  steward-etcd
-  #     topologyKey: "kubernetes.io/hostname"
+# -- Kubernetes affinity rules to apply to etcd pods.
+# requiredDuringScheduling hard-guarantees that no two etcd members share a node:
+# a quorum store must never co-locate members, since losing one node would then
+# drop 2 of 3 members and lose quorum. IgnoredDuringExecution constrains only
+# scheduling, so existing pods are not evicted (they spread on the next reschedule).
+# Trade-off at exactly 3 schedulable nodes (one per member): a node loss leaves its
+# member Pending until the node returns instead of co-locating. Pending is the safe
+# failure mode for a quorum store. Assumes >=3 schedulable nodes; switch to
+# preferredDuringScheduling only if the cluster cannot guarantee that.
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: steward-etcd
+        topologyKey: kubernetes.io/hostname
 
 # -- Kubernetes topology spread constraints to apply to etcd pods
 topologySpreadConstraints: []
