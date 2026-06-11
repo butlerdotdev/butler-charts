@@ -96,6 +96,13 @@ server:
     # emits http:// URLs.
     trustProxyHeaders: false
 
+    # -- PEM-encoded Ed25519 public key used to verify butler-portal-issued
+    # JWT proofs. When set, butler-server constructs PortalVerifier and
+    # accepts portal-signed Bearer tokens; when empty, the verifier is nil
+    # and the portal-JWT path is bypassed. Leave empty unless butler-portal
+    # is configured to mint proofs against the matching private key.
+    portalPubKey: ""
+
     # Platform Admin auth (bootstrap admin for initial setup)
     platform:
       # -- Enable bootstrap admin authentication
