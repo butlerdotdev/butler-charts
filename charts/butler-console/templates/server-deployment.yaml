@@ -89,6 +89,10 @@ spec:
               value: {{ .Values.server.auth.secureCookies | quote }}
             - name: BUTLER_TRUST_PROXY_HEADERS
               value: {{ .Values.server.auth.trustProxyHeaders | default false | quote }}
+            {{- if .Values.server.auth.portalPubKey }}
+            - name: BUTLER_PORTAL_PUBKEY
+              value: {{ .Values.server.auth.portalPubKey | quote }}
+            {{- end }}
 
             # Platform Admin auth (bootstrap admin)
             {{- if .Values.server.auth.platform.enabled }}

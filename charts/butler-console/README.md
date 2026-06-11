@@ -63,6 +63,7 @@ helm install butler-console oci://ghcr.io/butlerdotdev/charts/butler-console \
 | server.enabled | bool | `true` | Enable server component |
 | server.replicaCount | int | `1` | Number of server replicas |
 | server.image.repository | string | `ghcr.io/butlerdotdev/butler-console-server` | Server image |
+| server.auth.portalPubKey | string | `""` | PEM-encoded Ed25519 public key used to verify butler-portal JWT proofs. When set, BUTLER_PORTAL_PUBKEY is exported and butler-server's PortalVerifier becomes non-nil. |
 | server.resources.requests.cpu | string | `100m` | CPU request |
 | server.resources.requests.memory | string | `128Mi` | Memory request |
 
