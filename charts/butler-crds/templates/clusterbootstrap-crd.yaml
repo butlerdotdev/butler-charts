@@ -575,6 +575,7 @@ spec:
                 - gcp
                 - aws
                 - azure
+                - local
                 type: string
               providerRef:
                 description: |-
