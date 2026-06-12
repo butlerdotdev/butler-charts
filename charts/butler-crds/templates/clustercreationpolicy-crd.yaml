@@ -195,6 +195,7 @@ spec:
                   - azure
                   - aws
                   - gcp
+                  - local
                   type: string
                 type: array
             required:
