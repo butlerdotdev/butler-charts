@@ -19,8 +19,9 @@ server:
     repository: ghcr.io/butlerdotdev/butler-server
     # -- Image pull policy
     pullPolicy: IfNotPresent
-    # -- Image tag (defaults to chart appVersion)
-    tag: ""
+    # -- Image tag. Pinned explicitly; the butler-server backend versions
+    # independently of the console frontend and this chart.
+    tag: "0.21.1"
 
   # -- Pod annotations
   podAnnotations: {}
@@ -180,8 +181,8 @@ frontend:
     repository: ghcr.io/butlerdotdev/butler-console
     # -- Image pull policy
     pullPolicy: IfNotPresent
-    # -- Image tag (defaults to chart appVersion)
-    tag: ""
+    # -- Image tag. Pinned explicitly to the console frontend release.
+    tag: "0.16.1"
 
   # -- Pod annotations
   podAnnotations: {}

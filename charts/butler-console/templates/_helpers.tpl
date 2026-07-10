@@ -92,16 +92,14 @@ Create the name of the service account to use
 Server image reference
 */}}
 {{- define "butler-console.server.image" -}}
-{{- $tag := .Values.server.image.tag | default .Chart.AppVersion }}
-{{- printf "%s:%s" .Values.server.image.repository $tag }}
+{{- printf "%s:%s" .Values.server.image.repository .Values.server.image.tag }}
 {{- end }}
 
 {{/*
 Frontend image reference
 */}}
 {{- define "butler-console.frontend.image" -}}
-{{- $tag := .Values.frontend.image.tag | default .Chart.AppVersion }}
-{{- printf "%s:%s" .Values.frontend.image.repository $tag }}
+{{- printf "%s:%s" .Values.frontend.image.repository .Values.frontend.image.tag }}
 {{- end }}
 
 {{/*
