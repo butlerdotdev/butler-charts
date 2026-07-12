@@ -21,7 +21,7 @@ server:
     pullPolicy: IfNotPresent
     # -- Image tag. Pinned explicitly; the butler-server backend versions
     # independently of the console frontend and this chart.
-    tag: "0.21.1"
+    tag: "0.22.0"
 
   # -- Pod annotations
   podAnnotations: {}
